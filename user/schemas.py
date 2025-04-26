@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -10,6 +11,14 @@ class UserInput(BaseModel):
     cpf: str
     email: str
     password: str
+
+
+class UserUpdateInput(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    cpf: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
 
 
 class UserOutput(BaseModel):
