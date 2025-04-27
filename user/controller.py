@@ -30,7 +30,7 @@ def get_user_by_id(user_id: UUID, db: Session = Depends(get_db)) -> list[UserOut
     user = (db.query(UserModel).
             filter(UserModel.id == user_id, UserModel.deleted_at.is_(None)))
     if user is None:
-        return HTTPException(status_code=404, detail="User not found with the given id.")
+        raise HTTPException(status_code=404, detail="User not found with the given id.")
     return user
 
 
@@ -78,11 +78,12 @@ def restore_deleted_user(user_id: UUID, db: Session = Depends(get_db)) -> UserOu
 
 
 @users_router.patch("", status_code=200, response_model=UserOutScheme)
-def update_user(user_id: UUID, data: UserUpdateInScheme, db: Session = Depends(get_db)) -> UserOutScheme:
-    user = db.query(UserModel).filter(UserModel.id == user_id).first()
+def update_user(user_id: UUID, data: UserUpdateInScheme, db: Session = Depends(get_db)) -> UserUpdateInScheme:
+    user = db.query(UserModel).filter(UserModel.id == user_id,
+                                      UserModel.deleted_at.is_(None)).first()
 
-    if user is None:
-        return HTTPException(status_code=404, detail="User not found with the given id.")
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found with the given id.")
 
     update_data = data.dict(exclude_unset=True)
 
@@ -103,10 +104,10 @@ def update_user(user_id: UUID, data: UserUpdateInScheme, db: Session = Depends(g
 
 @users_router.delete("", status_code=200, response_model=UserOutScheme)
 def delete_user(user_id: UUID, db: Session = Depends(get_db)) -> UserOutScheme:
-    user = db.query(UserModel).filter(UserModel.id == user_id).first()
+    user = db.query(UserModel).filter(UserModel.id == user_id, ).first()
 
     if user is None:
-        return HTTPException(status_code=404, detail="User not found with the given id.")
+        raise HTTPException(status_code=404, detail="User not found with the given id.")
 
     user.deleted_at = datetime.now()
     db.commit()
