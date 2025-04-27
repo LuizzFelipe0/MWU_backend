@@ -57,6 +57,26 @@ def create_user(data: UserInScheme, db: Session = Depends(get_db)) -> UserOutSch
     return user
 
 
+@users_router.post("/{user_id}/restore", status_code=200, response_model=UserOutScheme)
+def restore_deleted_user(user_id: UUID, db: Session = Depends(get_db)) -> UserOutScheme:
+    deleted_user = (
+        db.query(UserModel)
+        .filter(
+            UserModel.id == user_id,
+            UserModel.deleted_at.isnot(None)).first()
+    )
+
+    if not deleted_user:
+        raise HTTPException(status_code=404, detail="This User is not deleted or was not found in the database!")
+
+    deleted_user.updated_at = datetime.now()
+    deleted_user.deleted_at = None
+    db.commit()
+    db.refresh(deleted_user)
+
+    return deleted_user
+
+
 @users_router.patch("", status_code=200, response_model=UserOutScheme)
 def update_user(user_id: UUID, data: UserUpdateInScheme, db: Session = Depends(get_db)) -> UserOutScheme:
     user = db.query(UserModel).filter(UserModel.id == user_id).first()
