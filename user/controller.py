@@ -15,7 +15,7 @@ users_router = APIRouter(prefix="/users", tags=["Users"])
 
 @users_router.get("")
 def get_all_users(db: Session = Depends(get_db)) -> list[UserOutScheme | None]:
-    users = db.query(UserModel).all()
+    users = db.query(UserModel).filter(UserModel.deleted_at.is_(None)).all()
     return users
 
 
