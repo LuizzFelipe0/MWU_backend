@@ -19,6 +19,12 @@ def get_all_users(db: Session = Depends(get_db)) -> list[UserOutScheme | None]:
     return users
 
 
+@users_router.get("/deleted")
+def get_deleted_users(db: Session = Depends(get_db)) -> list[UserOutScheme | None]:
+    deleted_users = db.query(UserModel).filter(UserModel.deleted_at.isnot(None)).all()
+    return deleted_users
+
+
 @users_router.get("/{user_id}")
 def get_user_by_id(user_id: UUID, db: Session = Depends(get_db)) -> list[UserOutScheme | None]:
     user = (db.query(UserModel).
