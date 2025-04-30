@@ -77,3 +77,16 @@ def update_account(account_id: UUID, data: AccountUpdateInScheme,
     db.commit()
 
     return account
+
+
+@accounts_router.delete("/delete/{account_id}", status_code=200, response_model=AccountOutScheme)
+def delete_account(account_id: UUID, db: Session = Depends(get_db)) -> AccountOutScheme:
+    account = db.query(AccountModel).filter(AccountModel.id == account_id,
+                                            AccountModel.deleted_at.is_(None)).first()
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found with the given id.")
+
+    account.deleted_at = datetime.now()
+    db.commit()
+
+    return account
