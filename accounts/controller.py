@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -6,20 +7,22 @@ from sqlalchemy.orm import Session
 from mwu.db import get_db
 from user.models import User as UserModel, UsersAccounts as UserAccountM2MModel
 from .models import Accounts as AccountModel
-from .schemas import AccountOutput as AccountOutScheme, AccountInput as AccountInScheme
+from .schemas import AccountOutput as AccountOutScheme, AccountInput as AccountInScheme, \
+    AccountUpdateInput as AccountUpdateInScheme
 
 accounts_router = APIRouter(prefix="/accounts", tags=["Accounts"])
 
 
 @accounts_router.get("")
 def get_all_accounts(db: Session = Depends(get_db)) -> list[AccountOutScheme | None]:
-    accounts = db.query(AccountModel).all()
+    accounts = db.query(AccountModel).filter(AccountModel.deleted_at.is_(None)).all()
     return accounts
 
 
 @accounts_router.get("/{account_id}")
 def get_account_by_id(account_id: UUID, db: Session = Depends(get_db)) -> list[AccountOutScheme | None]:
-    account = db.query(AccountModel).filter(AccountModel.id == account_id).first()
+    account = (db.query(AccountModel).
+               filter(AccountModel.id == account_id, AccountModel.deleted_at.is_(None)))
     if account is None:
         raise HTTPException(status_code=404, detail="Account not found with the given id.")
     return account
@@ -52,5 +55,25 @@ def create_account(user_id: UUID, data: AccountInScheme, db: Session = Depends(g
 
     db.refresh(account)
     db.refresh(user_account)
+
+    return account
+
+
+@accounts_router.patch("/update/{account_id}", status_code=200, response_model=AccountOutScheme)
+def update_account(account_id: UUID, data: AccountUpdateInScheme,
+                   db: Session = Depends(get_db)) -> AccountUpdateInScheme:
+    account = db.query(AccountModel).filter(AccountModel.id == account_id,
+                                            AccountModel.deleted_at.is_(None)).first()
+
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found with the given id.")
+
+    update_data = data.dict(exclude_unset=True)
+
+    for key, value in update_data.items():
+        setattr(account, key, value)
+
+    account.updated_at = datetime.now()
+    db.commit()
 
     return account
