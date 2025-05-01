@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -9,6 +10,13 @@ class CategoryInput(BaseModel):
     name: str
     description: str
     type: str
+
+
+class CategoryUpdateInput(BaseModel):
+    user_id: Optional[UUID] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+    type: Optional[str] = None
 
 
 class CategoryOutput(BaseModel):
