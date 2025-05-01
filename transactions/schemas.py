@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum
+from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -13,8 +14,9 @@ class RecurrenceIntervalEnum(str, Enum):
 
 class TransactionInput(BaseModel):
     user_id: UUID
-    account_id: UUID
+    account_id: Optional[UUID] = None
     category_id: UUID
+    name: str
     amount: float
     type: str
     date: datetime
@@ -27,6 +29,7 @@ class TransactionOutput(BaseModel):
     user_id: UUID
     account_id: UUID
     category_id: UUID
+    name: str
     amount: float
     type: str
     date: datetime
