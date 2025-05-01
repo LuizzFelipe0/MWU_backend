@@ -49,6 +49,26 @@ def create_account(data: AccountInScheme, db: Session = Depends(get_db)) -> Acco
     return account
 
 
+@accounts_router.post("/{account_id}/restore", status_code=200, response_model=AccountOutScheme)
+def restore_deleted_account(account_id: UUID, db: Session = Depends(get_db)) -> AccountOutScheme:
+    deleted_account = (
+        db.query(AccountModel)
+        .filter(
+            AccountModel.id == account_id,
+            AccountModel.deleted_at.isnot(None)).first()
+    )
+
+    if not deleted_account:
+        raise HTTPException(status_code=404, detail="This Account is not deleted or was not found in the database!")
+
+    deleted_account.updated_at = datetime.now()
+    deleted_account.deleted_at = None
+    db.commit()
+    db.refresh(deleted_account)
+
+    return deleted_account
+
+
 @accounts_router.patch("/update/{account_id}", status_code=200, response_model=AccountOutScheme)
 def update_account(account_id: UUID, data: AccountUpdateInScheme,
                    db: Session = Depends(get_db)) -> AccountUpdateInScheme:
