@@ -17,10 +17,10 @@ class Transactions(_Base):
 
     id = Column(Uuid, primary_key=True, default=uuid7)
     user_id = Column(Uuid, default=uuid7)
-    account_id = Column(Uuid, default=uuid7)
+    account_id = Column(Uuid, default=uuid7, nullable=True)
     category_id = Column(Uuid, primary_key=True, default=uuid7)
+    name = Column(String, nullable=False)
     amount = Column(Float, nullable=False)
-    type = Column(String, nullable=False)
     date = Column(DateTime, nullable=False)
     is_recurring = Column(Boolean, nullable=False, default=False)
     recurrence_interval = Column(Enum(RecurrenceIntervalEnum, name="recurrenceintervalenum"), nullable=False)
