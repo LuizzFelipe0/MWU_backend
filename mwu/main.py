@@ -6,6 +6,7 @@ from categories.controller import categories_router
 from financial_goals.controller import financial_goals_router
 from transactions.controller import transactions_router
 from user.controller import users_router
+from user_account.controller import user_account_router
 
 app = FastAPI(title="MWU (Money With You)",
               description="Application to help families manage their user transactions. "
@@ -13,10 +14,12 @@ app = FastAPI(title="MWU (Money With You)",
                           "automatically categorize these transactions, and generate monthly and annual expense reports.")
 
 app.include_router(accounts_router)
+app.include_router(user_account_router)
+app.include_router(users_router)
+
 app.include_router(categories_router)
 app.include_router(transactions_router)
 app.include_router(financial_goals_router)
-app.include_router(users_router)
 
 
 if __name__ == "__main__":
