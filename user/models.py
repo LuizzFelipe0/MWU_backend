@@ -18,11 +18,3 @@ class User(_Base):
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     updated_at = Column(DateTime, nullable=False, default=datetime.now())
     deleted_at = Column(DateTime, nullable=True)
-
-
-class UsersAccounts(_Base):
-    __tablename__ = "user_accounts"
-    id = Column(Uuid, primary_key=True, default=uuid_extensions.uuid7)
-    user_id = Column(Uuid, primary_key=True, default=uuid_extensions.uuid7)
-    account_id = Column(Uuid, primary_key=True, default=uuid_extensions.uuid7)
-    created_at = Column(DateTime, nullable=False, default=datetime.now())
