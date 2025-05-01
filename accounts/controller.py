@@ -18,6 +18,12 @@ def get_all_accounts(db: Session = Depends(get_db)) -> list[AccountOutScheme | N
     return accounts
 
 
+@accounts_router.get("/deleted")
+def get_deleted_accounts(db: Session = Depends(get_db)) -> list[AccountOutScheme | None]:
+    deleted_accounts = db.query(AccountModel).filter(AccountModel.deleted_at.isnot(None)).all()
+    return deleted_accounts
+
+
 @accounts_router.get("/{account_id}")
 def get_account_by_id(account_id: UUID, db: Session = Depends(get_db)) -> list[AccountOutScheme | None]:
     account = (db.query(AccountModel).
