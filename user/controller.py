@@ -77,7 +77,7 @@ def restore_deleted_user(user_id: UUID, db: Session = Depends(get_db)) -> UserOu
     return deleted_user
 
 
-@users_router.patch("", status_code=200, response_model=UserOutScheme)
+@users_router.patch("/update/{user_id}", status_code=200, response_model=UserOutScheme)
 def update_user(user_id: UUID, data: UserUpdateInScheme, db: Session = Depends(get_db)) -> UserUpdateInScheme:
     user = db.query(UserModel).filter(UserModel.id == user_id,
                                       UserModel.deleted_at.is_(None)).first()
@@ -102,7 +102,7 @@ def update_user(user_id: UUID, data: UserUpdateInScheme, db: Session = Depends(g
     return user
 
 
-@users_router.delete("", status_code=200, response_model=UserOutScheme)
+@users_router.delete("/delete/{user_id}", status_code=200, response_model=UserOutScheme)
 def delete_user(user_id: UUID, db: Session = Depends(get_db)) -> UserOutScheme:
     user = db.query(UserModel).filter(UserModel.id == user_id, ).first()
 
