@@ -104,8 +104,8 @@ def update_user(user_id: UUID, data: UserUpdateInScheme, db: Session = Depends(g
 
 @users_router.delete("/delete/{user_id}", status_code=200, response_model=UserOutScheme)
 def delete_user(user_id: UUID, db: Session = Depends(get_db)) -> UserOutScheme:
-    user = db.query(UserModel).filter(UserModel.id == user_id, ).first()
-
+    user = db.query(UserModel).filter(UserModel.id == user_id,
+                                      UserModel.deleted_at.is_(None)).first()
     if user is None:
         raise HTTPException(status_code=404, detail="User not found with the given id.")
 
