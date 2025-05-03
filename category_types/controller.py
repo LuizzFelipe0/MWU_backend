@@ -20,7 +20,9 @@ def get_all_category_types(db: Session = Depends(get_db)):
 @category_types_router.post("", response_model=CategoryTypesOutScheme,
                             status_code=201)
 def create_category_type(data: CategoryTypesInScheme, db: Session = Depends(get_db)):
-    category_type = CategoryTypesModel(name=data.name)
+    category_type = CategoryTypesModel(
+        name=data.name,
+        is_positive=data.is_positive)
 
     db.add(category_type)
     db.commit()
