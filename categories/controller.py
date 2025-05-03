@@ -4,6 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from category_types.models import CategoryTypes as CategoryTypeModel
 from mwu.db import get_db
 from user.models import User as UserModel
 from .models import Category as CategoryModel
@@ -38,14 +39,20 @@ def get_category_by_id(category_id: UUID, db: Session = Depends(get_db)) -> list
 def create_category(data: CategoryInScheme, db: Session = Depends(get_db)) -> CategoryOutScheme:
     user = db.query(UserModel).filter(UserModel.id == data.user_id,
                                       UserModel.deleted_at.is_(None)).first()
+
+    category_type = db.query(CategoryTypeModel).filter(CategoryTypeModel.id == data.category_type_id).first()
+
+    if category_type is None:
+        raise HTTPException(status_code=404, detail="Category Type not found with the given id.")
+
     if user is None:
         raise HTTPException(status_code=404, detail="User not found with the given id.")
 
     category = CategoryModel(
         user_id=data.user_id,
+        category_type_id=data.category_type_id,
         name=data.name,
         description=data.description,
-        type=data.type
     )
 
     db.add(category)
