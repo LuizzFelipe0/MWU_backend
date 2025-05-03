@@ -34,7 +34,7 @@ def get_transaction_by_id(transaction_id: UUID, db: Session = Depends(get_db)) -
     return transaction
 
 
-"""@transactions_router.post("", status_code=201, response_model=TransactionOutScheme)
+@transactions_router.post("", status_code=201, response_model=TransactionOutScheme)
 def create_transaction(data: TransactionInScheme, db: Session = Depends(get_db)) -> TransactionOutScheme | None:
     user = db.query(UserModel).filter(UserModel.id == data.user_id,
                                       UserModel.deleted_at.is_(None)).first()
@@ -60,7 +60,8 @@ def create_transaction(data: TransactionInScheme, db: Session = Depends(get_db))
         name=data.name,
         amount=data.amount,
         date=data.date,
-        is_recurring=data.is_recurring
+        is_recurring=data.is_recurring,
+        next_due_date=data.next_due_date
     )
     db.add(transaction)
 
@@ -68,4 +69,3 @@ def create_transaction(data: TransactionInScheme, db: Session = Depends(get_db))
     db.refresh(transaction)
 
     return transaction
-"""

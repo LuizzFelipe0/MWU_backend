@@ -1,15 +1,8 @@
 from datetime import datetime
-from enum import Enum
 from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
-
-
-class RecurrenceIntervalEnum(str, Enum):
-    Weekly = 'Weekly'
-    Monthly = 'Monthly'
-    Yearly = 'Yearly'
 
 
 class TransactionInput(BaseModel):
@@ -18,10 +11,9 @@ class TransactionInput(BaseModel):
     category_id: UUID
     name: str
     amount: float
-    type: str
     date: datetime
     is_recurring: bool
-    recurrence_interval: RecurrenceIntervalEnum | None
+    next_due_date: Optional[datetime] = None
 
 
 class TransactionOutput(BaseModel):
@@ -31,10 +23,9 @@ class TransactionOutput(BaseModel):
     category_id: UUID
     name: str
     amount: float
-    type: str
     date: datetime
     is_recurring: bool
-    recurrence_interval: RecurrenceIntervalEnum | None
+    next_due_date: datetime | None
     created_at: datetime
     updated_at: datetime
     deleted_at: datetime | None

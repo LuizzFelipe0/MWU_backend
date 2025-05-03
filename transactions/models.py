@@ -1,15 +1,9 @@
-import enum
 from datetime import datetime
 
-from sqlalchemy import Column, String, DateTime, Uuid, Float, Boolean, Enum
+from sqlalchemy import Column, String, DateTime, Uuid, Float, Boolean
 from uuid_extensions import uuid7
 
 from mwu.db import Base as _Base
-
-class RecurrenceIntervalEnum(enum.Enum):
-    Weekly = 'Weekly'
-    Monthly = 'Monthly'
-    Yearly = 'Yearly'
 
 
 class Transactions(_Base):
@@ -23,7 +17,7 @@ class Transactions(_Base):
     amount = Column(Float, nullable=False)
     date = Column(DateTime, nullable=False)
     is_recurring = Column(Boolean, nullable=False, default=False)
-    recurrence_interval = Column(Enum(RecurrenceIntervalEnum, name="recurrenceintervalenum"), nullable=False)
+    next_due_date = Column(DateTime, nullable=True)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     updated_at = Column(DateTime, nullable=False, default=datetime.now())
     deleted_at = Column(DateTime, nullable=True)
