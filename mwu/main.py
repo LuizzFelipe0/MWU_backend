@@ -3,6 +3,7 @@ from fastapi import FastAPI
 
 from accounts.controller import accounts_router
 from categories.controller import categories_router
+from category_types.controller import category_types_router
 from financial_goals.controller import financial_goals_router
 from transactions.controller import transactions_router
 from user.controller import users_router
@@ -18,9 +19,9 @@ app.include_router(user_account_router)
 app.include_router(users_router)
 
 app.include_router(categories_router)
+app.include_router(category_types_router)
 app.include_router(transactions_router)
 app.include_router(financial_goals_router)
-
 
 if __name__ == "__main__":
     uvicorn.run("mwu.main:app", host="127.0.0.1", port=8000, reload=True)
