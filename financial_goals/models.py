@@ -14,7 +14,6 @@ class FinancialGoals(_Base):
     name = Column(String, nullable=False)
     description = Column(String, nullable=True)
     target_amount = Column(Float, default=0.0, nullable=False)
-    current_amount = Column(Float, default=0.0, nullable=False)
     deadline = Column(Date, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     updated_at = Column(DateTime, nullable=False, default=datetime.now())

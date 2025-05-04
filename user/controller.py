@@ -47,7 +47,8 @@ def create_user(data: UserInScheme, db: Session = Depends(get_db)) -> UserOutSch
         last_name=data.last_name,
         email=data.email,
         password=hash_password(data.password),
-        cpf=cpf_validator(data.cpf)
+        cpf=cpf_validator(data.cpf),
+        manual_balance=data.manual_balance
     )
 
     db.add(user)
