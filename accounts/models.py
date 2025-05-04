@@ -13,7 +13,7 @@ class Accounts(_Base):
     name = Column(String)
     type = Column(String, nullable=False)
     account_number = Column(String, nullable=True)
-    balance = Column(Float,nullable=True)
+    balance = Column(Float, nullable=True)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     updated_at = Column(DateTime, nullable=False, default=datetime.now())
     deleted_at = Column(DateTime, nullable=True)

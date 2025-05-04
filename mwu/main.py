@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from accounts.controller import accounts_router
+from analytics.goals.controller import analytics_router
 from categories.controller import categories_router
 from category_types.controller import category_types_router
 from financial_goals.controller import financial_goals_router
@@ -13,6 +14,8 @@ app = FastAPI(title="MWU (Money With You)",
               description="Application to help families manage their user transactions. "
                           "The application allows you to import receipts and monthly bills (water, electricity, gas),"
                           "automatically categorize these transactions, and generate monthly and annual expense reports.")
+
+app.include_router(analytics_router)
 
 app.include_router(accounts_router)
 app.include_router(user_account_router)
