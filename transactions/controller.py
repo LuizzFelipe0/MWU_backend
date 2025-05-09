@@ -36,7 +36,8 @@ def get_transaction_by_id(transaction_id: UUID, db: Session = Depends(get_db)) -
     return transaction
 
 
-@transactions_router.post("", status_code=201,response_model=TransactionOutScheme)  # Need to implement next due date rule
+@transactions_router.post("", status_code=201,
+                          response_model=TransactionOutScheme)  # Need to implement next due date rule
 def create_transaction(data: TransactionInScheme, db: Session = Depends(get_db)) -> TransactionOutScheme | None:
     user = db.query(UserModel).filter(UserModel.id == data.user_id,
                                       UserModel.deleted_at.is_(None)).first()
@@ -100,6 +101,19 @@ def update_transaction(transaction_id: UUID, data: TransactionUpdateInScheme,
         setattr(transaction, key, value)
 
     transaction.updated_at = datetime.now()
+    db.commit()
+
+    return transaction
+
+
+@transactions_router.delete("/delete/{transaction_id}", status_code=200, response_model=TransactionOutScheme)
+def delete_transaction(transaction_id: UUID, db: Session = Depends(get_db)) -> TransactionOutScheme:
+    transaction = db.query(TransactionModel).filter(TransactionModel.id == transaction_id,
+                                                    TransactionModel.deleted_at.is_(None)).first()
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found with the given id.")
+
+    transaction.deleted_at = datetime.now()
     db.commit()
 
     return transaction
