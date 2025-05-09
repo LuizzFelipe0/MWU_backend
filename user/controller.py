@@ -4,8 +4,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from mwu.auth.security import hash_password, is_strong_password
 from mwu.db import get_db
+from user.auth.security import hash_password, is_strong_password
 from .models import User as UserModel
 from .schemas import UserOutput as UserOutScheme, UserInput as UserInScheme, UserUpdateInput as UserUpdateInScheme
 from .utils import cpf_validator
