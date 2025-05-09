@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -8,7 +9,8 @@ from categories.models import Category as CategoryModel
 from mwu.db import get_db
 from user.models import User as UserModel
 from .models import Transactions as TransactionModel
-from .schemas import TransactionOutput as TransactionOutScheme, TransactionInput as TransactionInScheme
+from .schemas import TransactionOutput as TransactionOutScheme, TransactionInput as TransactionInScheme, \
+    TransactionUpdateInput as TransactionUpdateInScheme
 
 transactions_router = APIRouter(prefix="/transactions", tags=["Transactions"])
 
@@ -34,20 +36,20 @@ def get_transaction_by_id(transaction_id: UUID, db: Session = Depends(get_db)) -
     return transaction
 
 
-@transactions_router.post("", status_code=201, response_model=TransactionOutScheme)
+@transactions_router.post("", status_code=201,response_model=TransactionOutScheme)  # Need to implement next due date rule
 def create_transaction(data: TransactionInScheme, db: Session = Depends(get_db)) -> TransactionOutScheme | None:
     user = db.query(UserModel).filter(UserModel.id == data.user_id,
                                       UserModel.deleted_at.is_(None)).first()
 
-    account = (db.query(AccountModel).
-               filter(AccountModel.id == data.account_id, AccountModel.deleted_at.is_(None)))
+    account = db.query(AccountModel).filter(AccountModel.id == data.account_id,
+                                            AccountModel.deleted_at.is_(None)).first()
 
     category = db.query(CategoryModel).filter(CategoryModel.id == data.category_id,
                                               CategoryModel.deleted_at.is_(None)).first()
     if user is None:
         raise HTTPException(status_code=404, detail="User not found with the given id.")
 
-    if account is None:
+    if data.account_id is not None and account is None:
         raise HTTPException(status_code=404, detail="Account not found with the given id.")
 
     if not category:
@@ -67,5 +69,37 @@ def create_transaction(data: TransactionInScheme, db: Session = Depends(get_db))
 
     db.commit()
     db.refresh(transaction)
+
+    return transaction
+
+
+@transactions_router.patch("/update/{transaction_id}", status_code=200, response_model=TransactionOutScheme)
+def update_transaction(transaction_id: UUID, data: TransactionUpdateInScheme,
+                       db: Session = Depends(get_db)) -> TransactionUpdateInScheme:
+    transaction = db.query(TransactionModel).filter(TransactionModel.id == transaction_id,
+                                                    TransactionModel.deleted_at.is_(None)).first()
+
+    user = db.query(UserModel).filter(UserModel.id == data.user_id,
+                                      UserModel.deleted_at.is_(None)).first()
+
+    account = db.query(AccountModel).filter(AccountModel.id == data.account_id,
+                                            AccountModel.deleted_at.is_(None)).first()
+
+    if data.account_id is not None and account is None:
+        raise HTTPException(status_code=404, detail="Account not found with the given id.")
+
+    if data.user_id is not None and user is None:
+        raise HTTPException(status_code=404, detail="User not found with the given id.")
+
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found with the given id.")
+
+    update_data = data.dict(exclude_unset=True)
+
+    for key, value in update_data.items():
+        setattr(transaction, key, value)
+
+    transaction.updated_at = datetime.now()
+    db.commit()
 
     return transaction
