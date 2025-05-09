@@ -11,7 +11,7 @@ class Transactions(_Base):
 
     id = Column(Uuid, primary_key=True, default=uuid7)
     user_id = Column(Uuid, default=uuid7)
-    account_id = Column(Uuid, default=uuid7, nullable=True)
+    account_id = Column(Uuid, nullable=True)
     category_id = Column(Uuid, primary_key=True, default=uuid7)
     name = Column(String, nullable=False)
     amount = Column(Float, nullable=False)
