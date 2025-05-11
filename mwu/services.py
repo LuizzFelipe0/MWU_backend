@@ -52,12 +52,12 @@ class ModelOperationalService(BaseService):
         self.db.refresh(obj)
         return obj
 
-    def update(self, id: UUID, data):
-        obj = self.get_obj_by_id_not_deleted(id)
+    def update(self, obj_id: UUID, data):
+        obj = self.db.query(self.model).filter(self.model.id == obj_id).first()
         for key, val in data.dict(exclude_unset=True).items():
             setattr(obj, key, val)
         self.db.commit()
-        self.db.updated_at = datetime.now()
+        self.updated_at = datetime.now()
         self.db.refresh(obj)
         return obj
 
