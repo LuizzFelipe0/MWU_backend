@@ -1,5 +1,7 @@
 import re
 
+from fastapi import HTTPException
+
 
 def cpf_validator(cpf: str) -> str:
     # Remove everything that is not a number
@@ -7,11 +9,11 @@ def cpf_validator(cpf: str) -> str:
 
     # CPF has to be 11 digits
     if len(cpf) != 11:
-        return False
+        raise HTTPException(status_code=422, detail='Invalid CPF format! CPF has to be 11 digits')
 
     # Repeated sequences like 11111111111 are not allowed
     if cpf == cpf[0] * 11:
-        return False
+        raise HTTPException(status_code=422, detail='Invalid CPF format! Repeated sequences are not allowed')
 
     # Validation of first digit
     cpf_sum = sum(int(cpf[i]) * (10 - i) for i in range(9))
@@ -20,7 +22,7 @@ def cpf_validator(cpf: str) -> str:
         first_digit = 0
 
     if first_digit != int(cpf[9]):
-        return False
+        raise HTTPException(status_code=422, detail='Invalid CPF format! First digit rule is incorrect')
 
     # Validation of second digit
     cpf_sum = sum(int(cpf[i]) * (11 - i) for i in range(10))
@@ -29,6 +31,6 @@ def cpf_validator(cpf: str) -> str:
         second_digit = 0
 
     if second_digit != int(cpf[10]):
-        return False
+        raise HTTPException(status_code=422, detail='Invalid CPF format! Second digit rule is incorrect')
 
     return cpf
