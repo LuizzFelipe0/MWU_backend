@@ -1,5 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 
 from accounts.controller import accounts_router
 from analytics.goals.controller import analytics_router
@@ -14,6 +15,19 @@ app = FastAPI(title="MWU (Money With You)",
               description="Application to help families manage their user transactions. "
                           "The application allows you to import receipts and monthly bills (water, electricity, gas),"
                           "automatically categorize these transactions, and generate monthly and annual expense reports.")
+
+origins = [
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(analytics_router)
 
