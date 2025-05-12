@@ -26,23 +26,23 @@ class ModelOperationalService(BaseService):
     def get_all_deleted(self):
         return self.db.query(self.model).filter(self.model.deleted_at.isnot(None)).all()
 
-    def get_obj_by_id(self, id: UUID):
-        obj = self.db.query(self.model).filter(self.model.id == id).first()
+    def get_obj_by_id(self, obj_id: UUID):
+        obj = self.db.query(self.model).filter(self.model.id == obj_id).first()
         if not obj:
-            raise HTTPException(status_code=404, detail={self.model.name + "Not found"})
+            raise HTTPException(status_code=404, detail={self.model.__name__: "Not found"})
         return obj
 
-    def get_obj_by_id_not_deleted(self, id: UUID):
-        obj = self.db.query(self.model).filter(self.model == id, self.model.deleted_at.is_(None)).first()
+    def get_obj_by_id_not_deleted(self, obj_id: UUID):
+        obj = self.db.query(self.model).filter(self.model.id == obj_id, self.model.deleted_at.is_(None)).first()
         if not obj:
-            raise HTTPException(status_code=404, detail={self.model.name + "Not found"})
+            raise HTTPException(status_code=404, detail={self.model.__name__: "Not found"})
         return obj
 
-    def get_obj_by_id_deleted(self, id: UUID):
-        obj = self.db.query(self.model).filter(self.model == id, self.model.deleted_at.isnot(None)).first()
+    def get_obj_by_id_deleted(self, obj_id: UUID):
+        obj = self.db.query(self.model).filter(self.model.id == obj_id, self.model.deleted_at.isnot(None)).first()
         if not obj:
             raise HTTPException(status_code=404,
-                                detail={self.model.name + "Not found, Object may be deleted or does not exist"})
+                                detail={self.model.__name__: "Not found, Object may be deleted or does not exist"})
         return obj
 
     def create(self, data):
@@ -56,28 +56,28 @@ class ModelOperationalService(BaseService):
         obj = self.db.query(self.model).filter(self.model.id == obj_id).first()
         for key, val in data.dict(exclude_unset=True).items():
             setattr(obj, key, val)
-        self.db.commit()
-        self.updated_at = datetime.now()
-        self.db.refresh(obj)
-        return obj
-
-    def delete(self, id: UUID):
-        obj = self.get_obj_by_id_not_deleted(id)
-        self.db.deleted_at = datetime.now()
+        obj.updated_at = datetime.now()
         self.db.commit()
         self.db.refresh(obj)
         return obj
 
-    def restore(self, id: UUID):
-        deleted_obj = self.get_obj_by_id_deleted(id)
-        self.db.updated_at = datetime.now()
-        self.db.deleted_at = None
+    def delete(self, obj_id: UUID):
+        obj = self.get_obj_by_id_not_deleted(obj_id)
+        obj.deleted_at = datetime.now()
+        self.db.commit()
+        self.db.refresh(obj)
+        return obj
+
+    def restore(self, obj_id: UUID):
+        deleted_obj = self.get_obj_by_id_deleted(obj_id)
+        deleted_obj.updated_at = datetime.now()
+        deleted_obj.deleted_at = None
         self.db.commit()
         self.db.refresh(deleted_obj)
         return deleted_obj
 
-    def force_delete(self, id: UUID):
-        obj = self.get_obj_by_id_deleted(id)
+    def force_delete(self, obj_id: UUID):
+        obj = self.db.query(self.model).filter(self.model.id == obj_id).first()
         self.db.delete(obj)
         self.db.commit()
         raise HTTPException(status_code=204)
