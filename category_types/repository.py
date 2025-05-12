@@ -27,5 +27,5 @@ class CategoryTypeRepository(ModelOperationalService):
         return category_type
 
     def delete_category_type(self, id: UUID):
-        category_type = self.force_delete(id=id)
+        category_type = self.force_delete(obj_id=id)
         return category_type
