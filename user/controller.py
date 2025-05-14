@@ -15,12 +15,12 @@ class UserController:
     service: UserRepository = Depends()
 
     @users_router.get("/all", response_model=list[UserOutScheme | None])
-    def get_all(self):
+    def get_all_users(self):
         users = self.service.get_all()
         return users
 
     @users_router.get("/deleted", response_model=list[UserOutScheme | None])
-    def get_deleted(self):
+    def get_deleted_users(self):
         deleted_users = self.service.get_deleted_users()
         return deleted_users
 
