@@ -9,7 +9,6 @@ class FinancialGoalsInput(BaseModel):
     user_id: UUID
     name: str
     description: Optional[str] = None
-    current_amount: float
     target_amount: float
     deadline: date
 
@@ -18,7 +17,6 @@ class FinancialGoalsUpdateInput(BaseModel):
     user_id: Optional[UUID] = None
     name: Optional[str] = None
     description: Optional[str] = None
-    current_amount: Optional[float] = None
     target_amount: Optional[float] = None
     deadline: Optional[date] = None
 
@@ -28,7 +26,6 @@ class FinancialGoalsOutput(BaseModel):
     user_id: UUID
     name: str
     description: str | None
-    current_amount: float
     target_amount: float
     deadline: date
     created_at: datetime
