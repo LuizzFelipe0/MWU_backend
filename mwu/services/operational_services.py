@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from .db import get_db
+from mwu.db import get_db
 
 
 class BaseService:
