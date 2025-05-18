@@ -8,6 +8,7 @@ from categories.controller import categories_router
 from category_types.controller import category_types_router
 from financial_goals.controller import financial_goals_router
 from transactions.controller import transactions_router
+from auth.controller import auth_router
 from user.controller import users_router
 from user_account.controller import user_account_router
 
@@ -30,6 +31,7 @@ app.add_middleware(
 )
 
 app.include_router(analytics_router)
+app.include_router(auth_router)
 
 app.include_router(accounts_router)
 app.include_router(user_account_router)
