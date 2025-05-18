@@ -4,7 +4,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from mwu.db import get_db
-from mwu.services import ModelOperationalService
+from mwu.services.operational_services import ModelOperationalService
 from .models import Accounts as AccountModel
 from .schemas import AccountInput as AccountInScheme, AccountUpdateInput as AccountUpdateInScheme
 

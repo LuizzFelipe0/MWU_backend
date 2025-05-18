@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from category_types.models import CategoryTypes as CategoryTypeModel
 from mwu.db import get_db
-from mwu.services import ModelOperationalService
+from mwu.services.operational_services import ModelOperationalService
 from user.models import User as UserModel
 from .models import Category as CategoryModel
 from .schemas import CategoryInput as CategoryInScheme, CategoryUpdateInput as CategoryUpdateInScheme
@@ -38,6 +38,12 @@ class CategoryRepository(ModelOperationalService):
 
     def update_category(self, id: UUID, data: CategoryUpdateInScheme):  # Need improvement
         category_with_id_validated = self.get_obj_by_id(id)
+
+        if data.user_id is not None:
+            self.get_obj_by_id_not_deleted(data.user_id)
+        elif data.category_type_id is not None:
+            self.get_obj_by_id(data.category_type_id)
+
         category = self.update(obj_id=category_with_id_validated.id, data=data)
         return category
 

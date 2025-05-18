@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from accounts.models import Accounts as AccountModel
 from mwu.db import get_db
-from mwu.services import ModelRelationService, ModelOperationalService
+from mwu.services.operational_services import ModelRelationService, ModelOperationalService
 from user.models import User as UserModel
 from .models import UsersAccounts as UserAccountModel
 

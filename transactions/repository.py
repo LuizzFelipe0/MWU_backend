@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from accounts.models import Accounts as AccountModel
 from categories.models import Category as CategoryModel
 from mwu.db import get_db
-from mwu.services import ModelOperationalService
+from mwu.services.operational_services import ModelOperationalService
 from user.models import User as UserModel
 from .models import Transactions as TransactionModel
 from .schemas import TransactionInput as TransactionInScheme, TransactionUpdateInput as TransactionUpdateInScheme

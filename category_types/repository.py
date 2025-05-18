@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from category_types.models import CategoryTypes as CategoryTypesModel
 from mwu.db import get_db
-from mwu.services import ModelOperationalService
+from mwu.services.operational_services import ModelOperationalService
 from .schemas import CategoryTypesInput as CategoryTypeInScheme, CategoryTypesUpdateInput as CategoryTypesUpdateInScheme
 
 

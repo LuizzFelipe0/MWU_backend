@@ -4,7 +4,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from mwu.db import get_db
-from mwu.services import ModelOperationalService
+from mwu.services.operational_services import ModelOperationalService
 from user.models import User as UserModel
 from .models import FinancialGoals as FinancialGoalsModel
 from .schemas import FinancialGoalsInput as FinancialGoalsInScheme, \
