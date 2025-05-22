@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
-from .repository import AccountRepository
+from .service import AccountService
 from .schemas import AccountOutput as AccountOutScheme, AccountInput as AccountInScheme, \
     AccountUpdateInput as AccountUpdateInScheme
 
@@ -12,7 +12,7 @@ accounts_router = APIRouter(prefix="/accounts", tags=["Accounts"])
 
 @cbv(accounts_router)
 class AccountController:
-    service: AccountRepository = Depends()
+    service: AccountService = Depends()
 
     @accounts_router.get("/all", response_model=list[AccountOutScheme | None])
     def get_all_accounts(self):

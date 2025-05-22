@@ -5,11 +5,11 @@ from sqlalchemy.orm import Session
 
 from category_types.models import CategoryTypes as CategoryTypesModel
 from mwu.db import get_db
-from mwu.services.operational_services import ModelOperationalService
+from mwu.repositories.operational_repositories import ModelOperationalRepository
 from .schemas import CategoryTypesInput as CategoryTypeInScheme, CategoryTypesUpdateInput as CategoryTypesUpdateInScheme
 
 
-class CategoryTypeRepository(ModelOperationalService):
+class CategoryTypeService(ModelOperationalRepository):
     def __init__(self, session: Session = Depends(get_db)):
         super().__init__(model=CategoryTypesModel, session=session)
 

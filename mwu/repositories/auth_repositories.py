@@ -6,7 +6,7 @@ from auth.security import verify_password
 from user.models import User as UserModel
 
 
-class AuthService:
+class AuthRepository:
     def __init__(self, session: Session):
         self.db = session
 

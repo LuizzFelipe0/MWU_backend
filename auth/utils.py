@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from mwu.db import get_db
-from user.repository import UserRepository
+from user.service import UserService
 
 
 def get_current_user(x_user_id: str = Header(...), db: Session = Depends(get_db)):
@@ -12,7 +12,7 @@ def get_current_user(x_user_id: str = Header(...), db: Session = Depends(get_db)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid user ID format")
 
-    repo = UserRepository(session=db)
+    repo = UserService(session=db)
     user = repo.get_user_by_id(user_id)
 
     if not user:

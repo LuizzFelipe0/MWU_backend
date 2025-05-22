@@ -3,15 +3,15 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
-from .repository import UserAccountRepository
 from .schemas import UserAccountOutput as UserAccountOutScheme
+from .service import UserAccountService
 
 user_account_router = APIRouter(prefix="/users_acounts", tags=["User Account Relation"])
 
 
 @cbv(user_account_router)
 class UserAccountController:
-    service: UserAccountRepository = Depends()
+    service: UserAccountService = Depends()
 
     @user_account_router.get("/users/{user_id}/accounts", response_model=list[UserAccountOutScheme])
     def get_accounts_for_user(self, user_id: UUID):

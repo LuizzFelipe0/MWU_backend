@@ -4,17 +4,17 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from mwu.db import get_db
-from mwu.services.operational_services import ModelOperationalService
+from mwu.repositories.operational_repositories import ModelOperationalRepository
 from user.models import User as UserModel
 from .models import FinancialGoals as FinancialGoalsModel
 from .schemas import FinancialGoalsInput as FinancialGoalsInScheme, \
     FinancialGoalsUpdateInput as FinancialGoalsUpdateInScheme
 
 
-class FinancialGoalsRepository(ModelOperationalService):
+class FinancialGoalsService(ModelOperationalRepository):
     def __init__(self, session: Session = Depends(get_db)):
         super().__init__(model=FinancialGoalsModel, session=session)
-        self.user_service = ModelOperationalService(UserModel, session=session)
+        self.user_service = ModelOperationalRepository(UserModel, session=session)
 
     def get_all_financial_goals(self):
         financial_goals = self.get_all()

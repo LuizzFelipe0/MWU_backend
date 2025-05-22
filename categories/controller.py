@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
-from .repository import CategoryRepository
+from .service import CategoryService
 from .schemas import CategoryOutput as CategoryOutScheme, CategoryInput as CategoryInScheme, \
     CategoryUpdateInput as CategoryUpdateInScheme
 
@@ -12,7 +12,7 @@ categories_router = APIRouter(prefix="/categories", tags=["Category"])
 
 @cbv(categories_router)
 class CategoryController:
-    service: CategoryRepository = Depends()
+    service: CategoryService = Depends()
 
     @categories_router.get("/all", response_model=list[CategoryOutScheme | None])
     def get_all_categories(self):

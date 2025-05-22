@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
-from .repository import TransactionsRepository
+from .service import TransactionsService
 from .schemas import TransactionOutput as TransactionOutScheme, TransactionInput, TransactionUpdateInput
 
 transactions_router = APIRouter(prefix="/transactions", tags=["Transactions"])
@@ -11,7 +11,7 @@ transactions_router = APIRouter(prefix="/transactions", tags=["Transactions"])
 
 @cbv(transactions_router)
 class TransactionsController:
-    service: TransactionsRepository = Depends()
+    service: TransactionsService = Depends()
 
     @transactions_router.get("/all", response_model=list[TransactionOutScheme | None])
     def get_all_transactions(self):

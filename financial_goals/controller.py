@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
-from .repository import FinancialGoalsRepository
+from .service import FinancialGoalsService
 from .schemas import FinancialGoalsOutput as FinancialGoalOutScheme, FinancialGoalsInput as FinancialGoalInScheme, \
     FinancialGoalsUpdateInput as FinancialGoalUpdateInScheme
 
@@ -12,7 +12,7 @@ financial_goals_router = APIRouter(prefix="/financial_goals", tags=["Financial G
 
 @cbv(financial_goals_router)
 class FinancialGoalsController:
-    service: FinancialGoalsRepository = Depends()
+    service: FinancialGoalsService = Depends()
 
     @financial_goals_router.get("/all", response_model=list[FinancialGoalOutScheme | None])
     def get_all_financial_goals(self):

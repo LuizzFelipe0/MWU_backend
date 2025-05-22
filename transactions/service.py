@@ -6,18 +6,18 @@ from sqlalchemy.orm import Session
 from accounts.models import Accounts as AccountModel
 from categories.models import Category as CategoryModel
 from mwu.db import get_db
-from mwu.services.operational_services import ModelOperationalService
+from mwu.repositories.operational_repositories import ModelOperationalRepository
 from user.models import User as UserModel
 from .models import Transactions as TransactionModel
 from .schemas import TransactionInput as TransactionInScheme, TransactionUpdateInput as TransactionUpdateInScheme
 
 
-class TransactionsRepository(ModelOperationalService):
+class TransactionsService(ModelOperationalRepository):
     def __init__(self, session: Session = Depends(get_db)):
         super().__init__(model=TransactionModel, session=session)
-        self.account_service = ModelOperationalService(AccountModel, session=session)
-        self.category_service = ModelOperationalService(CategoryModel, session=session)
-        self.user_service = ModelOperationalService(UserModel, session=session)
+        self.account_service = ModelOperationalRepository(AccountModel, session=session)
+        self.category_service = ModelOperationalRepository(CategoryModel, session=session)
+        self.user_service = ModelOperationalRepository(UserModel, session=session)
 
     def get_all_transactions(self):
         transactions = self.get_all_not_deleted()

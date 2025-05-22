@@ -7,12 +7,12 @@ from sqlalchemy.orm import Session
 from mwu.db import get_db
 
 
-class BaseService:
+class BaseRepository:
     def __init__(self, session: Session = Depends(get_db)):
         self.db = session
 
 
-class ModelOperationalService(BaseService):
+class ModelOperationalRepository(BaseRepository):
     def __init__(self, model, session: Session = Depends(get_db)):
         super().__init__(session)
         self.model = model
@@ -83,7 +83,7 @@ class ModelOperationalService(BaseService):
         raise HTTPException(status_code=204)
 
 
-class ModelRelationService:
+class ModelRelationRepository:
     def __init__(
             self,
             relation_model,

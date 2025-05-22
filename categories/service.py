@@ -5,17 +5,17 @@ from sqlalchemy.orm import Session
 
 from category_types.models import CategoryTypes as CategoryTypeModel
 from mwu.db import get_db
-from mwu.services.operational_services import ModelOperationalService
+from mwu.repositories.operational_repositories import ModelOperationalRepository
 from user.models import User as UserModel
 from .models import Category as CategoryModel
 from .schemas import CategoryInput as CategoryInScheme, CategoryUpdateInput as CategoryUpdateInScheme
 
 
-class CategoryRepository(ModelOperationalService):
+class CategoryService(ModelOperationalRepository):
     def __init__(self, session: Session = Depends(get_db)):
         super().__init__(model=CategoryModel, session=session)
-        self.user_service = ModelOperationalService(UserModel, session=session)
-        self.category_type_service = ModelOperationalService(CategoryTypeModel, session=session)
+        self.user_service = ModelOperationalRepository(UserModel, session=session)
+        self.category_type_service = ModelOperationalRepository(CategoryTypeModel, session=session)
 
     def get_all_categories(self):
         categories = self.get_all()

@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
-from .repository import UserRepository
+from .service import UserService
 from .schemas import UserOutput as UserOutScheme, UserInput as UserInScheme, UserUpdateInput as UserUpdateInScheme
 
 
@@ -12,7 +12,7 @@ users_router = APIRouter(prefix="/users", tags=["Users"])
 
 @cbv(users_router)
 class UserController:
-    service: UserRepository = Depends()
+    service: UserService = Depends()
 
     @users_router.get("/all", response_model=list[UserOutScheme | None])
     def get_all_users(self):

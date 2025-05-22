@@ -4,12 +4,12 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from mwu.db import get_db
-from mwu.services.operational_services import ModelOperationalService
+from mwu.repositories.operational_repositories import ModelOperationalRepository
 from .models import Accounts as AccountModel
 from .schemas import AccountInput as AccountInScheme, AccountUpdateInput as AccountUpdateInScheme
 
 
-class AccountRepository(ModelOperationalService):
+class AccountService(ModelOperationalRepository):
     def __init__(self, session: Session = Depends(get_db)):
         super().__init__(model=AccountModel, session=session)
 

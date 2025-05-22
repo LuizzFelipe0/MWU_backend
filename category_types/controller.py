@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
-from .repository import CategoryTypeRepository
+from .service import CategoryTypeService
 from .schemas import CategoryTypesOutput as CategoryTypesOutScheme, CategoryTypesInput as CategoryTypeInScheme, \
     CategoryTypesUpdateInput as CategoryTypesUpdateInScheme
 
@@ -12,7 +12,7 @@ category_types_router = APIRouter(prefix="/category_types", tags=["Category Type
 
 @cbv(category_types_router)
 class CategoryTypeController:
-    service: CategoryTypeRepository = Depends()
+    service: CategoryTypeService = Depends()
 
     @category_types_router.get("/all", response_model=list[CategoryTypesOutScheme])
     def get_all_category_types(self):

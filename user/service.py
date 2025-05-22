@@ -5,13 +5,13 @@ from sqlalchemy.orm import Session
 
 from auth.security import is_strong_password, hash_password
 from mwu.db import get_db
-from mwu.services.operational_services import ModelOperationalService
+from mwu.repositories.operational_repositories import ModelOperationalRepository
 from .models import User as UserModel
 from .schemas import UserInput as UserInScheme, UserUpdateInput as UserUpdateInScheme
 from .utils import cpf_validator
 
 
-class UserRepository(ModelOperationalService):
+class UserService(ModelOperationalRepository):
     def __init__(self, session: Session = Depends(get_db)):
         super().__init__(model=UserModel, session=session)
 
