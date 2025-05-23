@@ -17,7 +17,7 @@
 <ul>
   <li>FastAPI (backend framework)</li>
   <li>SQLAlchemy (ORM)</li>
-  <li>PostgreSQL (relational database)</li>
+  <li>MySQL (relational database)</li>
   <li>Pydantic (data validation &amp; serialization)</li>
   <li>bcrypt (password hashing)</li>
 </ul>
