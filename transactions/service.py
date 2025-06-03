@@ -31,12 +31,12 @@ class TransactionsService(ModelOperationalRepository):
         transaction = self.get_obj_by_id_not_deleted(obj_id=id)
         return transaction
 
-    def create_transaction(self, data: TransactionInScheme): # Need to implement next_due_date rule
-        self.user_service.get_obj_by_id_not_deleted(data.user_id)
-        self.category_service.get_obj_by_id_not_deleted(data.category_id)
+    def create_transaction(self, data: TransactionInScheme):  # Need to implement next_due_date rule
+        self.user_service.get_obj_by_id_not_deleted(obj_id=data.user_id)
+        self.category_service.get_obj_by_id_not_deleted(obj_id=data.category_id)
 
         if data.account_id is not None:
-            self.get_obj_by_id_not_deleted(data.account_id)
+            self.account_service.get_obj_by_id_not_deleted(obj_id=data.account_id)
 
         transaction = self.create(data=data)
         return transaction
