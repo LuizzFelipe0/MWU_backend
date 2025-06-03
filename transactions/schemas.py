@@ -10,9 +10,11 @@ class TransactionInput(BaseModel):
     account_id: Optional[UUID] = None
     category_id: UUID
     name: str
+    description: Optional[str] = None
     amount: float
     date: datetime
     is_recurring: bool
+    recurrence_interval: Optional[str] = None
     next_due_date: Optional[datetime] = None
 
 
@@ -21,9 +23,11 @@ class TransactionUpdateInput(BaseModel):
     account_id: Optional[UUID] = None
     category_id: Optional[UUID] = None
     name: Optional[str] = None
+    description: Optional[str] = None
     amount: Optional[float] = None
     date: Optional[datetime] = None
     is_recurring: Optional[bool] = None
+    recurrence_interval: Optional[str] = None
     next_due_date: Optional[datetime] = None
 
 
@@ -33,9 +37,11 @@ class TransactionOutput(BaseModel):
     account_id: Optional[UUID] = None
     category_id: UUID
     name: str
+    description: Optional[str] = None
     amount: float
     date: datetime
     is_recurring: bool
+    recurrence_interval: Optional[str] = None
     next_due_date: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
