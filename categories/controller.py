@@ -3,9 +3,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
-from .service import CategoryService
 from .schemas import CategoryOutput as CategoryOutScheme, CategoryInput as CategoryInScheme, \
     CategoryUpdateInput as CategoryUpdateInScheme
+from .service import CategoryService
 
 categories_router = APIRouter(prefix="/categories", tags=["Category"])
 
@@ -27,6 +27,11 @@ class CategoryController:
     @categories_router.get("/{category_id}")
     def get_category_by_id(self, category_id: UUID) -> CategoryOutScheme | None:
         category = self.service.get_category_by_id(id=category_id)
+        return category
+
+    @categories_router.get("/{user_id}/user", response_model=list[CategoryOutScheme])
+    def get_category_by_user(self, user_id: UUID):
+        category = self.service.get_category_by_user(user_id=user_id)
         return category
 
     @categories_router.post("/create", response_model=CategoryOutScheme, status_code=201)
