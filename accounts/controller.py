@@ -3,9 +3,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
-from .service import AccountService
 from .schemas import AccountOutput as AccountOutScheme, AccountInput as AccountInScheme, \
     AccountUpdateInput as AccountUpdateInScheme
+from .service import AccountService
 
 accounts_router = APIRouter(prefix="/accounts", tags=["Accounts"])
 
@@ -27,6 +27,11 @@ class AccountController:
     @accounts_router.get("/{account_id}")
     def get_account_by_id(self, account_id: UUID) -> AccountOutScheme | None:
         account = self.service.get_account_by_id(id=account_id)
+        return account
+
+    @accounts_router.get("/{user_id}/user", response_model=list[AccountOutScheme | None])
+    def get_accounts_by_user(self, user_id: UUID):
+        account = self.service.get_accounts_by_user(user_id=user_id)
         return account
 
     @accounts_router.post("/create", response_model=AccountOutScheme, status_code=201)
