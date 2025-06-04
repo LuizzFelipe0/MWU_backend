@@ -26,6 +26,23 @@ class ModelOperationalRepository(BaseRepository):
     def get_all_deleted(self):
         return self.db.query(self.model).filter(self.model.deleted_at.isnot(None)).all()
 
+    def get_objs_by_key(self, key: str, key_value: UUID, has_deleted_at: bool = True):
+        if not hasattr(self.model, key):
+            raise HTTPException(
+                status_code=400, detail=f"Key '{key}' not found in model {self.model.__name__}"
+            )
+        query = self.db.query(self.model).filter(getattr(self.model, key) == key_value)
+
+        if has_deleted_at:
+            if not hasattr(self.model, "deleted_at"):
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Model '{self.model.__name__}' does not have 'deleted_at' field, but 'has_deleted_at=True' was passed.",
+                )
+            query = query.filter(self.model.deleted_at.is_(None))
+
+        return query.all()
+
     def get_obj_by_id(self, obj_id: UUID):
         obj = self.db.query(self.model).filter(self.model.id == obj_id).first()
         if not obj:
