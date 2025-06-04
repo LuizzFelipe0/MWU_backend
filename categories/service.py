@@ -29,6 +29,10 @@ class CategoryService(ModelOperationalRepository):
         category = self.get_obj_by_id_not_deleted(obj_id=id)
         return category
 
+    def get_category_by_user(self, user_id: UUID):
+        category_by_user = self.get_objs_by_key(key="user_id", key_value=user_id)
+        return category_by_user
+
     def create_category(self, data: CategoryInScheme):
         self.user_service.get_obj_by_id_not_deleted(data.user_id)
         self.category_type_service.get_obj_by_id(data.category_type_id)
