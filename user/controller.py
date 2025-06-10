@@ -16,7 +16,7 @@ class UserController:
 
     @users_router.get("/all", response_model=list[UserOutScheme | None])
     def get_all_users(self):
-        users = self.service.get_all()
+        users = self.service.get_all_users()
         return users
 
     @users_router.get("/deleted", response_model=list[UserOutScheme | None])
