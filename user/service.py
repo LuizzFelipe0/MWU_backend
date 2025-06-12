@@ -62,3 +62,8 @@ class UserService(ModelOperationalRepository):
         user_with_id_validated = self.get_obj_by_id_deleted(id)
         user = self.restore(obj_id=user_with_id_validated.id)
         return user
+
+    def force_delete_user(self, id: UUID):
+        user_with_id_validated = self.get_obj_by_id_not_deleted(id)
+        user = self.force_delete(obj_id=user_with_id_validated.id)
+        return user
