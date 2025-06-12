@@ -44,12 +44,12 @@ class UserController:
         user = self.service.delete_user(id=user_id)
         return user
 
-    @users_router.post("{user_id}/restore", status_code=200)
+    @users_router.post("/{user_id}/restore", status_code=200)
     def restore_user(self, user_id: UUID) -> UserOutScheme:
         user = self.service.restore_user(id=user_id)
         return user
 
-    @users_router.delete("{user_id}/force-delete", status_code=204)
+    @users_router.delete("/{user_id}/force-delete", status_code=204)
     def force_delete_user(self, user_id: UUID):
         user = self.service.force_delete_user(id=user_id)
         return user
