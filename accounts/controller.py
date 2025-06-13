@@ -49,7 +49,12 @@ class AccountController:
         account = self.service.delete_account(id=account_id)
         return account
 
-    @accounts_router.post("{account_id}/restore", status_code=200)
+    @accounts_router.post("/{account_id}/restore", status_code=200)
     def restore_account(self, account_id: UUID) -> AccountOutScheme:
         account = self.service.restore_account(id=account_id)
+        return account
+
+    @accounts_router.delete("/{account_id}/force-delete", status_code=204)
+    def force_delete_account(self, account_id: UUID):
+        account = self.service.force_delete_account(id=account_id)
         return account

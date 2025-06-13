@@ -65,3 +65,8 @@ class AccountService(ModelOperationalRepository):
         account_with_id_validated = self.get_obj_by_id_deleted(id)
         account = self.restore(obj_id=account_with_id_validated.id)
         return account
+
+    def force_delete_account(self, id: UUID):
+        account_with_id_validated = self.get_obj_by_id_deleted(id)
+        account = self.force_delete(obj_id=account_with_id_validated.id)
+        return account
