@@ -49,7 +49,7 @@ class CategoryController:
         category = self.service.delete_category(id=category_id)
         return category
 
-    @categories_router.post("{category_id}/restore", status_code=200)
+    @categories_router.post("/{category_id}/restore", status_code=200)
     def restore_category(self, category_id: UUID) -> CategoryOutScheme:
         category = self.service.restore_category(id=category_id)
         return category

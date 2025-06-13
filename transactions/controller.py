@@ -48,7 +48,7 @@ class TransactionsController:
         transaction = self.service.delete_transaction(id=transaction_id)
         return transaction
 
-    @transactions_router.post("{transaction_id}/restore", status_code=200)
+    @transactions_router.post("/{transaction_id}/restore", status_code=200)
     def restore_transaction(self, transaction_id: UUID) -> TransactionOutScheme:
         transaction = self.service.restore_transaction(id=transaction_id)
         return transaction
