@@ -53,3 +53,8 @@ class CategoryController:
     def restore_category(self, category_id: UUID) -> CategoryOutScheme:
         category = self.service.restore_category(id=category_id)
         return category
+
+    @categories_router.delete("/{category_id}/force-delete", status_code=204)
+    def force_delete_category(self, category_id: UUID):
+        category = self.service.force_delete_category(id=category_id)
+        return category

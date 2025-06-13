@@ -60,3 +60,8 @@ class CategoryService(ModelOperationalRepository):
         category_with_id_validated = self.get_obj_by_id_deleted(id)
         category = self.restore(obj_id=category_with_id_validated.id)
         return category
+
+    def force_delete_category(self, id: UUID):
+        category_with_id_validated = self.get_obj_by_id_deleted(id)
+        category = self.force_delete(obj_id=category_with_id_validated.id)
+        return category
