@@ -6,19 +6,19 @@ from fastapi_utils.cbv import cbv
 from .schemas import UserAccountOutput as UserAccountOutScheme
 from .service import UserAccountService
 
-user_account_router = APIRouter(prefix="/users_acounts", tags=["User Account Relation"])
+user_account_router = APIRouter(prefix="/users_accounts", tags=["User Account Relation"])
 
 
 @cbv(user_account_router)
 class UserAccountController:
     service: UserAccountService = Depends()
 
-    @user_account_router.get("/users/{user_id}/accounts", response_model=list[UserAccountOutScheme])
+    @user_account_router.get("/accounts/{user_id}/users", response_model=list[UserAccountOutScheme])
     def get_accounts_for_user(self, user_id: UUID):
         account_user_relation = self.service.get_accounts_for_user_relation(user_id=user_id)
         return account_user_relation
 
-    @user_account_router.get("/accounts/{account_id}/users", response_model=list[UserAccountOutScheme])
+    @user_account_router.get("/users/{account_id}/accounts", response_model=list[UserAccountOutScheme])
     def get_users_for_account(self, account_id: UUID):
         user_account_relation = self.service.get_users_for_account_relation(account_id=account_id)
         return user_account_relation
