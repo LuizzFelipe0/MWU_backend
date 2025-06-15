@@ -52,3 +52,8 @@ class TransactionsController:
     def restore_transaction(self, transaction_id: UUID) -> TransactionOutScheme:
         transaction = self.service.restore_transaction(id=transaction_id)
         return transaction
+
+    @transactions_router.delete("/{transaction_id}/force-delete", status_code=204)
+    def force_delete_transaction(self, transaction_id: UUID):
+        transaction = self.service.force_delete_transaction(id=transaction_id)
+        return transaction

@@ -39,3 +39,8 @@ class FinancialGoalsController:
     def delete_financial_goal(self, financial_goal_id: UUID):
         financial_goal = self.service.delete_financial_goal(id=financial_goal_id)
         return financial_goal
+
+    @financial_goals_router.delete("/{category_id}/force-delete", status_code=204)
+    def force_delete_category(self, category_id: UUID):
+        category = self.service.force_delete_category(id=category_id)
+        return category
