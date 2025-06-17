@@ -13,6 +13,11 @@ user_account_router = APIRouter(prefix="/users_accounts", tags=["User Account Re
 class UserAccountController:
     service: UserAccountService = Depends()
 
+    @user_account_router.get("/all", response_model=list[UserAccountOutScheme])
+    def get_all_user_account_relations(self):
+        account_user_relations = self.service.get_all_user_accounts()
+        return account_user_relations
+
     @user_account_router.get("/accounts/{user_id}/users", response_model=list[UserAccountOutScheme])
     def get_accounts_for_user(self, user_id: UUID):
         account_user_relation = self.service.get_accounts_for_user_relation(user_id=user_id)
