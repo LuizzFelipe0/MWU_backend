@@ -22,6 +22,10 @@ class UserAccountService:
         self.user_repository = ModelOperationalRepository(UserModel, session=session)
         self.account_repository = ModelOperationalRepository(AccountModel, session=session)
 
+    def get_all_user_accounts(self):
+        user_accounts = self.relation_repository.get_all_relations()
+        return user_accounts
+
     def create_user_account_relation(self, user_id: UUID, account_id: UUID):
         self.user_repository.get_obj_by_id_not_deleted(user_id)
         self.account_repository.get_obj_by_id_not_deleted(account_id)
