@@ -34,7 +34,7 @@ class FinancialGoalsService(ModelOperationalRepository):
         financial_goal_with_id_validated = self.get_obj_by_id(id)
 
         if data.user_id is not None:
-            self.get_obj_by_id_not_deleted(data.user_id)
+            self.user_service.get_obj_by_id_not_deleted(data.user_id)
 
         financial_goal = self.update(obj_id=financial_goal_with_id_validated.id, data=data)
         return financial_goal
