@@ -17,7 +17,11 @@ class CategoryTypeService(ModelOperationalRepository):
         category_types = self.get_all()
         return category_types
 
-    def create_category_type(self, data: CategoryTypeInScheme):  # Need to guarantee data is a Pydantic object
+    def get_category_type_by_id(self, category_type_id: UUID):
+        category_type = self.get_obj_by_id(obj_id=category_type_id)
+        return category_type
+
+    def create_category_type(self, data: CategoryTypeInScheme):
         category_type = self.create(data=data)
         return category_type
 
