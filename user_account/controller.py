@@ -18,6 +18,11 @@ class UserAccountController:
         account_user_relations = self.service.get_all_user_accounts()
         return account_user_relations
 
+    @user_account_router.get("/{user_acount_id}", response_model=UserAccountOutScheme)
+    def get_user_accounts_relation_by_id(self,  user_acount_id: UUID):
+        user__accounts_relation = self.service.get_user_accounts_relation_by_id(user_acount_id)
+        return user__accounts_relation
+
     @user_account_router.get("/accounts/{user_id}/users", response_model=list[UserAccountOutScheme])
     def get_accounts_for_user(self, user_id: UUID):
         account_user_relation = self.service.get_accounts_for_user_relation(user_id=user_id)
