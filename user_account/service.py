@@ -26,6 +26,10 @@ class UserAccountService:
         user_accounts = self.relation_repository.get_all_relations()
         return user_accounts
 
+    def get_user_accounts_relation_by_id(self, user_account_id: UUID):
+        user_accounts_relation = self.relation_repository.get_relation_by_id(relation_id=user_account_id)
+        return user_accounts_relation
+
     def create_user_account_relation(self, user_id: UUID, account_id: UUID):
         self.user_repository.get_obj_by_id_not_deleted(user_id)
         self.account_repository.get_obj_by_id_not_deleted(account_id)
