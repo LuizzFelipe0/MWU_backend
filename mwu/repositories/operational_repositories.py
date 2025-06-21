@@ -117,6 +117,12 @@ class ModelRelationRepository:
         relations = self.db.query(self.relation_model).all()
         return relations
 
+    def get_relation_by_id(self, relation_id: UUID):
+        relation = self.db.query(self.relation_model).filter(self.relation_model.id == relation_id).first()
+        if not relation:
+            raise HTTPException(status_code=404, detail={self.relation_model.__name__: "Not found"})
+        return relation
+
     def get_relations_by_key(self, key: str, value: UUID):
         if key not in [self.first_key, self.second_key]:
             raise HTTPException(status_code=400, detail="Invalid key for relation filter")
