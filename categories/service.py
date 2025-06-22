@@ -44,9 +44,9 @@ class CategoryService(ModelOperationalRepository):
         category_with_id_validated = self.get_obj_by_id(id)
 
         if data.user_id is not None:
-            self.get_obj_by_id_not_deleted(data.user_id)
+            self.user_service.get_obj_by_id_not_deleted(data.user_id)
         elif data.category_type_id is not None:
-            self.get_obj_by_id(data.category_type_id)
+            self.category_type_service.get_obj_by_id(data.category_type_id)
 
         category = self.update(obj_id=category_with_id_validated.id, data=data)
         return category
