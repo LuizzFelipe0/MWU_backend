@@ -48,6 +48,11 @@ class TransactionsService(ModelOperationalRepository):
     def update_transaction(self, id: UUID, data: TransactionUpdateInScheme):
         transaction_with_id_validated = self.get_obj_by_id_not_deleted(id)
 
+        if data.user_id is not None:
+            self.user_service.get_obj_by_id_not_deleted(data.user_id)
+        elif data.category_id is not None:
+            self.category_service.get_obj_by_id(data.category_id)
+
         transaction = self.update(obj_id=transaction_with_id_validated.id, data=data)
         return transaction
 
@@ -60,6 +65,7 @@ class TransactionsService(ModelOperationalRepository):
         transaction_with_id_validated = self.get_obj_by_id_deleted(id)
         transaction = self.restore(obj_id=transaction_with_id_validated.id)
         return transaction
+
     def force_delete_transaction(self, id: UUID):
         transaction_with_id_validated = self.get_obj_by_id_deleted(id)
         transaction = self.force_delete(obj_id=transaction_with_id_validated.id)
