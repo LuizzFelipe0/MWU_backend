@@ -53,7 +53,11 @@ class TransactionsService(ModelOperationalRepository):
         elif data.category_id is not None:
             self.category_service.get_obj_by_id(data.category_id)
 
-        transaction = self.update(obj_id=transaction_with_id_validated.id, data=data)
+        update_data = data.copy(update={"recurrence_interval": None,"next_due_date": None}) \
+            if (data.is_recurring is False and transaction_with_id_validated.is_recurring is True) else data
+
+        transaction = self.update(obj_id=transaction_with_id_validated.id, data=update_data)
+
         return transaction
 
     def delete_transaction(self, id: UUID):
