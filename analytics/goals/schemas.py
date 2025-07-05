@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import  date
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -6,13 +6,13 @@ from pydantic import BaseModel
 
 class GoalsOutput(BaseModel):
     id: UUID
-    user_id: UUID
     name: str
     description: str | None
     target_amount: float
+    progress_percentage: str
+    sum_of_balances: float
+    difference_to_achieve_target: float
     deadline: date
-    created_at: datetime
-    updated_at: datetime
 
     class Config:
         from_attributes = True
