@@ -24,6 +24,10 @@ class FinancialGoalsService(ModelOperationalRepository):
         financial_goal = self.get_obj_by_id(obj_id=id)
         return financial_goal
 
+    def get_financial_goal_by_user_id(self, user_id: UUID):
+        financial_goals_by_user = self.get_objs_by_key(key='user_id',key_value=user_id, has_deleted_at=False)
+        return financial_goals_by_user
+
     def create_financial_goal(self, data: FinancialGoalsInScheme):
         self.user_service.get_obj_by_id_not_deleted(data.user_id)
 
