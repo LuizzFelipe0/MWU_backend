@@ -24,6 +24,11 @@ class FinancialGoalsController:
         financial_goal = self.service.get_financial_goal_by_id(id=financial_goal_id)
         return financial_goal
 
+    @financial_goals_router.get("/{user_id}/user", response_model=list[FinancialGoalOutScheme])
+    def get_financial_goals_by_user_id(self, user_id: UUID):
+        financial_goals = self.service.get_financial_goal_by_user_id(user_id=user_id)
+        return financial_goals
+
     @financial_goals_router.post("/create", response_model=FinancialGoalOutScheme, status_code=201)
     def create_financial_goal(self, data: FinancialGoalInScheme) -> FinancialGoalOutScheme:
         financial_goal = self.service.create_financial_goal(data)
