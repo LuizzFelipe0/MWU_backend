@@ -13,6 +13,7 @@ class GoalsOutput(BaseModel):
     sum_of_balances: float
     difference_to_achieve_target: float
     deadline: date
+    monthly_saving_required: float
 
     class Config:
         from_attributes = True
