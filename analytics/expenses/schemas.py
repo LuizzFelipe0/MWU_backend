@@ -1,19 +1,15 @@
-from datetime import datetime, date
-from uuid import UUID
-
 from pydantic import BaseModel
 
 
-class GoalsOutput(BaseModel):
-    id: UUID
-    user_id: UUID
-    name: str
-    description: str | None
-    current_amount: float # a ser visto
-    target_amount: float
-    deadline: date
-    created_at: datetime
-    updated_at: datetime
+class MonthlyCategoryExpense(BaseModel):
+    year: int
+    month: int
+    category_type_name: str
+    is_positive: bool
+    percentage: float
+    total_amount: float
 
-    class Config:
-        from_attributes = True
+
+class TotalExpenseCategoryDistribution(BaseModel):
+    category_type_name: str
+    percentage: float
