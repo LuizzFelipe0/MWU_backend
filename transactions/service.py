@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from accounts.models import Accounts as AccountModel
 from categories.models import Category as CategoryModel
+from category_types.models import CategoryTypes as CategoryTypeModel
 from mwu.db import get_db
 from mwu.repositories.operational_repositories import ModelOperationalRepository
 from user.models import User as UserModel
@@ -17,6 +18,7 @@ class TransactionsService(ModelOperationalRepository):
         super().__init__(model=TransactionModel, session=session)
         self.account_service = ModelOperationalRepository(AccountModel, session=session)
         self.category_service = ModelOperationalRepository(CategoryModel, session=session)
+        self.category_type_service = ModelOperationalRepository(CategoryTypeModel, session=session)
         self.user_service = ModelOperationalRepository(UserModel, session=session)
 
     def get_all_transactions(self):
@@ -32,8 +34,26 @@ class TransactionsService(ModelOperationalRepository):
         return transaction
 
     def get_transaction_by_user(self, user_id: UUID):
-        transaction = self.get_objs_by_key(key="user_id", key_value=user_id)
+        validated_user = self.user_service.get_obj_by_id_not_deleted(obj_id=user_id)
+        transaction = self.get_objs_by_key(key="user_id", key_value=validated_user.id)
         return transaction
+
+    def get_transactions_with_category_type_info(self, user_id: UUID):
+        transactions = self.get_transaction_by_user(user_id=user_id)
+
+        result = []
+        for transaction in transactions:
+            category = self.category_service.get_obj_by_id_not_deleted(obj_id=transaction.category_id)
+
+            category_type = self.category_type_service.get_obj_by_id(obj_id=category.category_type_id)
+
+            result.append({
+                "amount": transaction.amount,
+                "date": transaction.date,
+                "category_type_name": category_type.name,
+                "is_positive": category_type.is_positive
+            })
+        return result
 
     def create_transaction(self, data: TransactionInScheme):  # Need to implement next_due_date rule
         self.user_service.get_obj_by_id_not_deleted(obj_id=data.user_id)
