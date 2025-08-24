@@ -3,7 +3,8 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from accounts.controller import accounts_router
-from analytics.goals.controller import analytics_router
+from analytics.expenses.controller import expenses_router
+from analytics.goals.controller import  goals_router
 from categories.controller import categories_router
 from category_types.controller import category_types_router
 from financial_goals.controller import financial_goals_router
@@ -29,8 +30,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(expenses_router)
 
-app.include_router(analytics_router)
+app.include_router(goals_router)
 app.include_router(auth_router)
 
 app.include_router(accounts_router)
