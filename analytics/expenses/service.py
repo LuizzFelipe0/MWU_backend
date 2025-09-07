@@ -1,4 +1,5 @@
 from collections import defaultdict
+from typing import Optional
 from uuid import UUID
 
 from fastapi import Depends
@@ -26,9 +27,10 @@ class ExpensesService(ModelOperationalRepository):
             session=session
         )
 
-
-    def get_monthly_expenses_by_category(self, user_id: UUID):
-        transactions_data = self.transaction_service.get_transactions_with_category_type_info(user_id)
+    def get_monthly_expenses_by_category(self, user_id: UUID, is_recurring_expense: Optional[bool] = None):
+        transactions_data = self.transaction_service.get_transactions_with_category_type_info(
+            user_id, is_recurring_expense
+        )
 
         summary = defaultdict(float)
         totals_by_month = defaultdict(float)
@@ -61,7 +63,6 @@ class ExpensesService(ModelOperationalRepository):
             })
 
         return sorted(result, key=lambda x: (x['year'], x['month']))
-
 
     def get_total_expense_distribution(self, user_id: UUID):
         transactions_data = self.transaction_service.get_transactions_with_category_type_info(user_id)
