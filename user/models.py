@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import uuid_extensions
-from sqlalchemy import Column, String, DateTime, Uuid, Float
+from sqlalchemy import Column, String, DateTime, Uuid, Float, Boolean
 
 from mwu.db import Base as _Base
 
@@ -19,3 +19,4 @@ class User(_Base):
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     updated_at = Column(DateTime, nullable=False, default=datetime.now())
     deleted_at = Column(DateTime, nullable=True)
+    is_admin = Column(Boolean, nullable=False, default=0)
