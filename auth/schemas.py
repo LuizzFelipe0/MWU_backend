@@ -10,6 +10,7 @@ class UserInfo(BaseModel):
     email: str
     first_name: str
     cpf: str
+    is_admin: bool
 
 class LoginOutput(BaseModel):
     access_token: str
