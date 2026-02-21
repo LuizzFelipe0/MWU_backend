@@ -2,8 +2,9 @@ from sqlalchemy.orm import Session
 from fastapi import Depends
 
 from auth.schemas import LoginInput
+from auth.security import create_access_token
 from mwu.db import get_db
-from mwu.repositories.auth_repositories import AuthRepository
+from auth.repository import AuthRepository
 
 
 class AuthService:
@@ -11,6 +12,11 @@ class AuthService:
         self.auth_service = AuthRepository(session=session)
 
     def login_user(self, data: LoginInput):
-        login = self.auth_service.authenticate_user(data)
+        user = self.auth_service.authenticate_user(data)
 
-        return login
+        token = create_access_token(data={"sub": str(user.id)})
+
+        return {
+            "access_token": token,
+            "user": user
+        }
