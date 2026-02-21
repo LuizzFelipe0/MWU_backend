@@ -23,9 +23,17 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     if not user_id:
         raise HTTPException(status_code=401, detail="Invalid token payload")
 
-    repo = UserService(session=db)
-    user = repo.get_user_by_id(UUID(user_id))
+    service = UserService(session=db)
+    user = service.get_user_by_id(UUID(user_id))
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+def get_current_admin_user(current_user = Depends(get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This user is not an administrator."
+        )
+    return current_user
