@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
+from auth.utils import get_current_admin_user
 from .service import CategoryTypeService
 from .schemas import CategoryTypesOutput as CategoryTypesOutScheme, CategoryTypesInput as CategoryTypeInScheme, \
     CategoryTypesUpdateInput as CategoryTypesUpdateInScheme
@@ -25,16 +26,16 @@ class CategoryTypeController:
         return category_type
 
     @category_types_router.post("/create", response_model=CategoryTypesOutScheme, status_code=201)
-    def create_category_type(self, data: CategoryTypeInScheme):
+    def create_category_type(self, data: CategoryTypeInScheme, admin = Depends(get_current_admin_user)):
         category_type = self.service.create_category_type(data)
         return category_type
 
     @category_types_router.patch("/{category_type_id}/update", status_code=200)
-    def update_category_type(self, category_type_id: UUID, data: CategoryTypesUpdateInScheme) -> CategoryTypesUpdateInScheme:
+    def update_category_type(self, category_type_id: UUID, data: CategoryTypesUpdateInScheme, admin = Depends(get_current_admin_user)) -> CategoryTypesUpdateInScheme:
         category_type = self.service.update_category_type(id=category_type_id, data=data)
         return category_type
 
     @category_types_router.delete("/{category_type_id}/delete", status_code=204)
-    def delete_category_type(self, category_type_id: UUID):
+    def delete_category_type(self, category_type_id: UUID, admin = Depends(get_current_admin_user)):
         category_type = self.service.delete_category_type(id=category_type_id)
         return category_type
