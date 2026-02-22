@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
+from auth.utils import get_current_user
 from .schemas import TransactionOutput as TransactionOutScheme, TransactionInput, TransactionUpdateInput
 from .service import TransactionsService
 
@@ -14,28 +15,23 @@ class TransactionsController:
     service: TransactionsService = Depends()
 
     @transactions_router.get("/all", response_model=list[TransactionOutScheme | None])
-    def get_all_transactions(self):
-        transactions = self.service.get_all_transactions()
+    def get_all_transactions(self, current_user = Depends(get_current_user)):
+        transactions = self.service.get_all_transactions(user_id=current_user.id)
         return transactions
 
     @transactions_router.get("/deleted", response_model=list[TransactionOutScheme | None])
-    def get_deleted_transactions(self):
-        deleted_transactions = self.service.get_deleted_transactions()
+    def get_deleted_transactions(self, current_user = Depends(get_current_user)):
+        deleted_transactions = self.service.get_deleted_transactions(user_id=current_user.id)
         return deleted_transactions
 
     @transactions_router.get("/{transaction_id}", response_model=TransactionOutScheme | None)
-    def get_transaction_by_id(self, transaction_id: UUID):
-        transaction = self.service.get_transaction_by_id(id=transaction_id)
-        return transaction
-
-    @transactions_router.get("/{user_id}/user", response_model=list[TransactionOutScheme | None])
-    def get_transaction_by_user(self, user_id: UUID):
-        transaction = self.service.get_transaction_by_user(user_id=user_id)
+    def get_transaction_by_id(self, transaction_id: UUID, current_user = Depends(get_current_user)):
+        transaction = self.service.get_transaction_detailed(id=transaction_id, user_id=current_user.id)
         return transaction
 
     @transactions_router.post("/create", response_model=TransactionOutScheme, status_code=201)
-    def create_transaction(self, data: TransactionInput) -> TransactionOutScheme:
-        transaction = self.service.create_transaction(data)
+    def create_transaction(self, data: TransactionInput, current_user = Depends(get_current_user)) -> TransactionOutScheme:
+        transaction = self.service.create_transaction(data, user_id=current_user.id)
         return transaction
 
     @transactions_router.patch("/{transaction_id}/update", status_code=200)
