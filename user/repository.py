@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from sqlalchemy.orm import Session
 from mwu.repositories.base_repository import BaseRepository
 from .models import User as UserModel
