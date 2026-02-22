@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
+from auth.utils import get_current_admin_user
 from .service import UserService
 from .schemas import UserOutput as UserOutScheme, UserInput as UserInScheme, UserUpdateInput as UserUpdateInScheme
 
@@ -15,12 +16,12 @@ class UserController:
     service: UserService = Depends()
 
     @users_router.get("/all", response_model=list[UserOutScheme | None])
-    def get_all_users(self):
+    def get_all_users(self, admin = Depends(get_current_admin_user)):
         users = self.service.get_all_users()
         return users
 
     @users_router.get("/deleted", response_model=list[UserOutScheme | None])
-    def get_deleted_users(self):
+    def get_deleted_users(self, admin = Depends(get_current_admin_user)):
         deleted_users = self.service.get_deleted_users()
         return deleted_users
 
