@@ -4,69 +4,73 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from mwu.db import get_db
-from mwu.repositories.operational_repositories import ModelOperationalRepository
-from user_account.models import UsersAccounts
-from .models import Accounts as AccountModel
+from user_account.repository import UserAccountsRepository
+from .repository import AccountRepository
 from .schemas import AccountInput as AccountInScheme, AccountUpdateInput as AccountUpdateInScheme
 
 
-class AccountService(ModelOperationalRepository):
+class AccountService:
     def __init__(self, session: Session = Depends(get_db)):
-        super().__init__(model=AccountModel, session=session)
-        self.user_accounts_service = ModelOperationalRepository(UsersAccounts, session=session)
+        self.account_repository = AccountRepository(session=session)
+        self.user_accounts_repository = UserAccountsRepository(session=session)
 
-    def get_all_accounts(self):
-        accounts = self.get_all_not_deleted()
+    def get_all_accounts(self, user_id: UUID):
+        accounts = self.account_repository.get_accounts_by_user(user_id=user_id)
         return accounts
 
-    def get_deleted_accounts(self):
-        accounts = self.get_all_deleted()
-        return accounts
+    def get_deleted_accounts(self, user_id: UUID):
+        deleted_accounts = self.account_repository.get_deleted_accounts_by_user(user_id=user_id)
+        return deleted_accounts
 
-    def get_accounts_by_user(self, user_id: UUID):
-        user_accounts = self.user_accounts_service.get_objs_by_key(
-            key="user_id",
-            key_value=user_id,
-            has_deleted_at=False
+    def get_account_by_id(self, id: UUID, user_id: UUID):
+        account = self.account_repository.get_account_by_user(
+            account_id=id,
+            user_id=user_id
         )
-        account_ids = [ua.account_id for ua in user_accounts]
+        return account
 
-        if not account_ids:
-            return []
+    def create_account(self, data: AccountInScheme, user_id: UUID):
+        account = self.account_repository.create(data=data)
 
-        accounts = (
-            self.db.query(self.model)
-            .filter(
-                self.model.id.in_(account_ids), self.model.deleted_at.is_(None))
-            .all()
+        self.user_accounts_repository.create_relation( # Automatically creates row in user_accounts table
+            user_id=user_id,
+            account_id=account.id
         )
-        return accounts
 
-    def get_account_by_id(self, id: UUID):
-        account = self.get_obj_by_id_not_deleted(obj_id=id)
         return account
 
-    def create_account(self, data: AccountInScheme):
-        account = self.create(data=data)
+    def update_account(self, id: UUID, data: AccountUpdateInScheme, user_id: UUID):
+        self.account_repository.get_account_by_user(account_id=id, user_id=user_id)
+
+        account = self.account_repository.update(obj_id=id, data=data)
         return account
 
-    def update_account(self, id: UUID, data: AccountUpdateInScheme):
-        account_with_id_validated = self.get_obj_by_id_not_deleted(id)
-
-        account = self.update(obj_id=account_with_id_validated.id, data=data)
+    def delete_account(self, id: UUID, user_id: UUID):
+        account_validated = self.account_repository.get_account_by_user(
+            account_id=id,
+            user_id=user_id
+        )
+        account = self.account_repository.soft_delete(obj_id=account_validated.id)
         return account
 
-    def delete_account(self, id: UUID):
-        account_with_id_validated = self.get_obj_by_id_not_deleted(id)
-        account = self.delete(obj_id=account_with_id_validated.id)
+    def restore_account(self, id: UUID, user_id: UUID):
+        deleted_account = self.account_repository.get_deleted_account_by_user(
+            account_id=id,
+            user_id=user_id
+        )
+        account = self.account_repository.restore(obj_id=deleted_account.id)
         return account
 
-    def restore_account(self, id: UUID):
-        account_with_id_validated = self.get_obj_by_id_deleted(id)
-        account = self.restore(obj_id=account_with_id_validated.id)
-        return account
+    def force_delete_account(self, id: UUID, user_id: UUID):
+        deleted_account = self.account_repository.get_deleted_account_by_user(
+            account_id=id,
+            user_id=user_id
+        )
+        self.user_accounts_repository.delete_relation(  # Automatically deletes row in user_accounts table
+            user_id=user_id,
+            account_id=deleted_account.id
+        )
 
-    def force_delete_account(self, id: UUID):
-        account_with_id_validated = self.get_obj_by_id_deleted(id)
-        account = self.force_delete(obj_id=account_with_id_validated.id)
+        account = self.account_repository.force_delete(obj_id=deleted_account.id)
+
         return account
