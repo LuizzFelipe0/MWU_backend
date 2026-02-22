@@ -8,24 +8,17 @@ from sqlalchemy.orm import Session
 from categories.service import CategoryService
 from transactions.models import Transactions as TransactionsModel
 from mwu.db import get_db
-from mwu.repositories.operational_repositories import ModelOperationalRepository, ModelRelationRepository
 from transactions.service import TransactionsService
 from user.service import UserService
-from user_account.models import UsersAccounts as UserAccountModel
 
 
-class ExpensesService(ModelOperationalRepository):
+class ExpensesService:
     def __init__(self, session: Session = Depends(get_db)):
         super().__init__(model=TransactionsModel, session=session)
         self.transaction_service = TransactionsService(session=session)
         self.category_service = CategoryService(session=session)
         self.user_service = UserService(session=session)
-        self.relation_repository = ModelRelationRepository(
-            relation_model=UserAccountModel,
-            first_model_key="user_id",
-            second_model_key="account_id",
-            session=session
-        )
+
 
     def get_monthly_expenses_by_category(self, user_id: UUID, is_recurring_expense: Optional[bool] = None):
         transactions_data = self.transaction_service.get_transactions_with_category_type_info(

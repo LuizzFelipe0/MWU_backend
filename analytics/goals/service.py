@@ -7,22 +7,14 @@ from sqlalchemy.orm import Session
 from accounts.service import AccountService
 from financial_goals.models import FinancialGoals as FinancialGoalsModel
 from mwu.db import get_db
-from mwu.repositories.operational_repositories import ModelOperationalRepository, ModelRelationRepository
 from user.service import UserService
-from user_account.models import UsersAccounts as UserAccountModel
 
 
-class GoalsService(ModelOperationalRepository):
+class GoalsService:
     def __init__(self, session: Session = Depends(get_db)):
         super().__init__(model=FinancialGoalsModel, session=session)
         self.account_service = AccountService(session=session)
         self.user_service = UserService(session=session)
-        self.relation_repository = ModelRelationRepository(
-            relation_model=UserAccountModel,
-            first_model_key="user_id",
-            second_model_key="account_id",
-            session=session
-        )
 
     def get_goals_to_be_reached_by_user(self, user_id: UUID):
         validated_user = self.user_service.get_user_by_id(id=user_id)
