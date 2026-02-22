@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
+from auth.utils import get_current_user
 from .service import FinancialGoalsService
 from .schemas import FinancialGoalsOutput as FinancialGoalOutScheme, FinancialGoalsInput as FinancialGoalInScheme, \
     FinancialGoalsUpdateInput as FinancialGoalUpdateInScheme
@@ -15,32 +16,29 @@ class FinancialGoalsController:
     service: FinancialGoalsService = Depends()
 
     @financial_goals_router.get("/all", response_model=list[FinancialGoalOutScheme | None])
-    def get_all_financial_goals(self):
-        financial_goals = self.service.get_all_financial_goals()
+    def get_all_financial_goals(self, current_user = Depends(get_current_user)):
+        financial_goals = self.service.get_all_financial_goals(user_id=current_user.id)
         return financial_goals
 
     @financial_goals_router.get("/{financial_goal_id}", response_model=FinancialGoalOutScheme | None)
-    def get_financial_goal_by_id(self, financial_goal_id: UUID):
-        financial_goal = self.service.get_financial_goal_by_id(id=financial_goal_id)
+    def get_financial_goal_by_id(self, financial_goal_id: UUID, current_user = Depends(get_current_user)):
+        financial_goal = self.service.get_financial_goal_by_id(id=financial_goal_id, user_id=current_user.id)
         return financial_goal
 
-    @financial_goals_router.get("/{user_id}/user", response_model=list[FinancialGoalOutScheme])
-    def get_financial_goals_by_user_id(self, user_id: UUID):
-        financial_goals = self.service.get_financial_goal_by_user_id(user_id=user_id)
-        return financial_goals
-
     @financial_goals_router.post("/create", response_model=FinancialGoalOutScheme, status_code=201)
-    def create_financial_goal(self, data: FinancialGoalInScheme) -> FinancialGoalOutScheme:
-        financial_goal = self.service.create_financial_goal(data)
+    def create_financial_goal(self, data: FinancialGoalInScheme, current_user = Depends(get_current_user)) -> FinancialGoalOutScheme:
+        financial_goal = self.service.create_financial_goal(data=data, user_id=current_user.id)
         return financial_goal
 
     @financial_goals_router.patch("/{financial_goal_id}/update", status_code=200)
     def update_financial_goal(self, financial_goal_id: UUID,
-                              data: FinancialGoalUpdateInScheme) -> FinancialGoalOutScheme:
-        financial_goal = self.service.update_financial_goal(id=financial_goal_id, data=data)
+                              data: FinancialGoalUpdateInScheme,
+                              current_user=Depends(get_current_user)
+                              ) -> FinancialGoalOutScheme:
+        financial_goal = self.service.update_financial_goal(id=financial_goal_id, data=data, user_id=current_user.id)
         return financial_goal
 
     @financial_goals_router.delete("/{financial_goal_id}/delete", status_code=204)
-    def delete_financial_goal(self, financial_goal_id: UUID):
-        financial_goal = self.service.delete_financial_goal(id=financial_goal_id)
+    def delete_financial_goal(self, financial_goal_id: UUID, current_user = Depends(get_current_user)):
+        financial_goal = self.service.delete_financial_goal(id=financial_goal_id, user_id=current_user.id)
         return financial_goal
