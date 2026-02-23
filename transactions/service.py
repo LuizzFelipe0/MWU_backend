@@ -4,79 +4,95 @@ from uuid import UUID
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from accounts.models import Accounts as AccountModel
-from categories.models import Category as CategoryModel
-from category_types.models import CategoryTypes as CategoryTypeModel
+from accounts.repository import AccountRepository
+from categories.repository import CategoryRepository
 from mwu.db import get_db
-from mwu.repositories.operational_repositories import ModelOperationalRepository
-from user.models import User as UserModel
-from .models import Transactions as TransactionModel
+
+from .repository import TransactionsRepository
 from .schemas import TransactionInput as TransactionInScheme, TransactionUpdateInput as TransactionUpdateInScheme
 
 
-class TransactionsService(ModelOperationalRepository):
+class TransactionsService:
     def __init__(self, session: Session = Depends(get_db)):
-        super().__init__(model=TransactionModel, session=session)
-        self.account_service = ModelOperationalRepository(AccountModel, session=session)
-        self.category_service = ModelOperationalRepository(CategoryModel, session=session)
-        self.category_type_service = ModelOperationalRepository(CategoryTypeModel, session=session)
-        self.user_service = ModelOperationalRepository(UserModel, session=session)
+        self.transactions_repository = TransactionsRepository(session)
+        self.account_repository = AccountRepository(session)
+        self.category_repository =CategoryRepository(session)
 
-    def get_all_transactions(self):
-        transactions = self.get_all_not_deleted()
+
+    def get_all_transactions(self, user_id: UUID):
+        transactions = self.transactions_repository.get_transactions_by_user(user_id=user_id)
         return transactions
 
-    def get_deleted_transactions(self):
-        transactions = self.get_all_deleted()
+    def get_deleted_transactions(self, user_id: UUID):
+        transactions = self.transactions_repository.get_deleted_transactions_by_user(user_id=user_id)
         return transactions
 
-    def get_transaction_by_id(self, id: UUID):
-        transaction = self.get_obj_by_id_not_deleted(obj_id=id)
+    def get_transaction_by_id(self, id: UUID, user_id: UUID):
+        transaction = self.transactions_repository.get_transaction_by_user(
+            transaction_id=id,
+            user_id=user_id
+        )
+
         return transaction
 
-    def get_transaction_by_user(self, user_id: UUID):
-        validated_user = self.user_service.get_obj_by_id_not_deleted(obj_id=user_id)
-        transaction = self.get_objs_by_key(key="user_id", key_value=validated_user.id)
-        return transaction
+    def create_transaction(self, data: TransactionInScheme, user_id: UUID):  # Need to implement next_due_date rule
+        data.user_id = user_id
 
-    def create_transaction(self, data: TransactionInScheme):  # Need to implement next_due_date rule
-        self.user_service.get_obj_by_id_not_deleted(obj_id=data.user_id)
-        self.category_service.get_obj_by_id_not_deleted(obj_id=data.category_id)
+        self.category_repository.get_category_by_user(
+            category_id=data.category_id,
+            user_id=user_id
+        )
 
         if data.account_id is not None:
-            self.account_service.get_obj_by_id_not_deleted(obj_id=data.account_id)
+            self.account_repository.get_account_by_user(
+                account_id=data.account_id,
+                user_id=user_id
+            )
 
-        transaction = self.create(data=data)
+        transaction = self.transactions_repository.create(data=data)
         return transaction
 
-    def update_transaction(self, id: UUID, data: TransactionUpdateInScheme):
-        transaction_with_id_validated = self.get_obj_by_id_not_deleted(id)
+    def update_transaction(self, id: UUID, data: TransactionUpdateInScheme, user_id: UUID):
+        data.user_id = user_id
 
-        if data.user_id is not None:
-            self.user_service.get_obj_by_id_not_deleted(data.user_id)
-        elif data.category_id is not None:
-            self.category_service.get_obj_by_id(data.category_id)
+        transaction_validated = self.transactions_repository.get_transaction_by_user(
+            transaction_id=id,
+            user_id=user_id
+        )
 
+        if data.category_id is not None:
+            self.category_repository.get_category_by_user(
+                category_id=data.category_id,
+                user_id=user_id
+            )
         update_data = data.copy(update={"recurrence_interval": None, "next_due_date": None}) \
-            if (data.is_recurring is False and transaction_with_id_validated.is_recurring is True) else data
+            if (data.is_recurring is False and transaction_validated.is_recurring is True) else data
 
-        transaction = self.update(obj_id=transaction_with_id_validated.id, data=update_data)
+        transaction = self.transactions_repository.update(obj_id=transaction_validated.id, data=update_data)
 
         return transaction
 
-    def delete_transaction(self, id: UUID):
-        transaction_with_id_validated = self.get_obj_by_id_not_deleted(id)
-        transaction = self.delete(obj_id=transaction_with_id_validated.id)
+    def delete_transaction(self, id: UUID, user_id: UUID):
+        transaction_validated = self.transactions_repository.get_transaction_by_user(
+            transaction_id=id,
+            user_id=user_id)
+        transaction = self.transactions_repository.soft_delete(obj_id=transaction_validated.id)
         return transaction
 
-    def restore_transaction(self, id: UUID):
-        transaction_with_id_validated = self.get_obj_by_id_deleted(id)
-        transaction = self.restore(obj_id=transaction_with_id_validated.id)
+    def restore_transaction(self, id: UUID, user_id: UUID):
+        deleted_transaction = self.transactions_repository.get_deleted_transaction_by_user(
+            transaction_id=id,
+            user_id=user_id
+        )
+        transaction = self.transactions_repository.restore(obj_id=deleted_transaction.id)
         return transaction
 
-    def force_delete_transaction(self, id: UUID):
-        transaction_with_id_validated = self.get_obj_by_id_deleted(id)
-        transaction = self.force_delete(obj_id=transaction_with_id_validated.id)
+    def force_delete_transaction(self, id: UUID, user_id: UUID):
+        deleted_transaction = self.transactions_repository.get_deleted_transaction_by_user(
+            transaction_id=id,
+            user_id=user_id
+        )
+        transaction = self.transactions_repository.force_delete(obj_id=deleted_transaction.id)
         return transaction
 
     # Analytics
