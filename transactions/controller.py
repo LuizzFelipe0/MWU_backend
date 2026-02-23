@@ -26,7 +26,7 @@ class TransactionsController:
 
     @transactions_router.get("/{transaction_id}", response_model=TransactionOutScheme | None)
     def get_transaction_by_id(self, transaction_id: UUID, current_user = Depends(get_current_user)):
-        transaction = self.service.get_transaction_detailed(id=transaction_id, user_id=current_user.id)
+        transaction = self.service.get_transaction_by_id(id=transaction_id, user_id=current_user.id)
         return transaction
 
     @transactions_router.post("/create", response_model=TransactionOutScheme, status_code=201)
@@ -35,21 +35,21 @@ class TransactionsController:
         return transaction
 
     @transactions_router.patch("/{transaction_id}/update", status_code=200)
-    def update_transaction(self, transaction_id: UUID, data: TransactionUpdateInput) -> TransactionOutScheme:
-        transaction = self.service.update_transaction(id=transaction_id, data=data)
+    def update_transaction(self, transaction_id: UUID, data: TransactionUpdateInput, current_user = Depends(get_current_user)) -> TransactionOutScheme:
+        transaction = self.service.update_transaction(id=transaction_id, data=data, user_id=current_user.id)
         return transaction
 
     @transactions_router.delete("/{transaction_id}/delete", status_code=200)
-    def delete_transaction(self, transaction_id: UUID) -> TransactionOutScheme:
-        transaction = self.service.delete_transaction(id=transaction_id)
+    def delete_transaction(self, transaction_id: UUID, current_user = Depends(get_current_user)) -> TransactionOutScheme:
+        transaction = self.service.delete_transaction(id=transaction_id, user_id=current_user.id)
         return transaction
 
     @transactions_router.post("/{transaction_id}/restore", status_code=200)
-    def restore_transaction(self, transaction_id: UUID) -> TransactionOutScheme:
-        transaction = self.service.restore_transaction(id=transaction_id)
+    def restore_transaction(self, transaction_id: UUID, current_user = Depends(get_current_user)) -> TransactionOutScheme:
+        transaction = self.service.restore_transaction(id=transaction_id, user_id=current_user.id)
         return transaction
 
     @transactions_router.delete("/{transaction_id}/force-delete", status_code=204)
-    def force_delete_transaction(self, transaction_id: UUID):
-        transaction = self.service.force_delete_transaction(id=transaction_id)
+    def force_delete_transaction(self, transaction_id: UUID, current_user = Depends(get_current_user)):
+        transaction = self.service.force_delete_transaction(id=transaction_id, user_id=current_user.id)
         return transaction
