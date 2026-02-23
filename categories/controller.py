@@ -2,7 +2,6 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
-from sqlalchemy.sql.functions import current_user
 
 from auth.utils import get_current_user
 from .schemas import CategoryOutput as CategoryOutScheme, CategoryInput as CategoryInScheme, \
