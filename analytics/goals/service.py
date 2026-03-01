@@ -5,25 +5,26 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from accounts.service import AccountService
-from financial_goals.models import FinancialGoals as FinancialGoalsModel
+from financial_goals.service import FinancialGoalsService
 from mwu.db import get_db
 from user.service import UserService
 
 
 class GoalsService:
     def __init__(self, session: Session = Depends(get_db)):
-        super().__init__(model=FinancialGoalsModel, session=session)
+        self.financial_goals_service = FinancialGoalsService(session=session)
         self.account_service = AccountService(session=session)
         self.user_service = UserService(session=session)
 
-    def get_goals_to_be_reached_by_user(self, user_id: UUID):
-        validated_user = self.user_service.get_user_by_id(id=user_id)
-
-        financial_goals = self.get_objs_by_key(key='user_id', key_value=validated_user.id, has_deleted_at=False)
-        accounts = self.account_service.get_accounts_by_user(user_id=validated_user.id)
+    def get_goals_to_be_reached(self, user_id: UUID):
+        global monthly_saving_required
+        
+        accounts = self.account_service.get_all_accounts(user_id=user_id)
+        financial_goals = self.financial_goals_service.get_all_financial_goals(user_id=user_id)
+        user = self.user_service.get_user_by_id(id=user_id)
 
         sum_of_account_balances = sum(acc.balance for acc in accounts)
-        user_manual_balance = validated_user.manual_balance or 0
+        user_manual_balance = user.manual_balance or 0
 
         sum_of_balances = sum_of_account_balances + user_manual_balance
 
@@ -34,7 +35,6 @@ class GoalsService:
 
             progress_percentage = f"{round(min(100, (sum_of_balances / goal.target_amount) * 100))}%"
 
-            monthly_saving_required = None
             if goal.deadline and goal.deadline > today and difference_to_achieve_target > 0:
                 months_remaining = ((goal.deadline.year - today.year) * 12 + goal.deadline.month - today.month)
                 if goal.deadline.day < today.day:
