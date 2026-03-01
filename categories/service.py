@@ -1,9 +1,8 @@
 from uuid import UUID
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from category_types.repository import CategoryTypeRepository
 from mwu.db import get_db
 
 from .repository import CategoryRepository
@@ -13,7 +12,6 @@ from .schemas import CategoryInput as CategoryInScheme, CategoryUpdateInput as C
 class CategoryService:
     def __init__(self, session: Session = Depends(get_db)):
         self.category_repository = CategoryRepository(session=session)
-        self.category_type_repository = CategoryTypeRepository
 
     def get_all_categories(self, user_id: UUID):
         categories = self.category_repository.get_categories_by_user(user_id=user_id)
@@ -36,9 +34,6 @@ class CategoryService:
 
     def update_category(self, id: UUID, data: CategoryUpdateInScheme,user_id: UUID):
         self.category_repository.get_category_by_user(category_id=id, user_id=user_id)
-
-        if data.category_type_id:
-            self.category_type_repository.get_by_id(data.category_type_id)
 
         data.user_id = user_id
 
