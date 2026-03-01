@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from accounts.repository import AccountRepository
 from categories.repository import CategoryRepository
+from category_types.repository import CategoryTypeRepository
 from mwu.db import get_db
 
 from .repository import TransactionsRepository
@@ -16,7 +17,8 @@ class TransactionsService:
     def __init__(self, session: Session = Depends(get_db)):
         self.transactions_repository = TransactionsRepository(session)
         self.account_repository = AccountRepository(session)
-        self.category_repository =CategoryRepository(session)
+        self.category_repository = CategoryRepository(session)
+        self.category_type_repository = CategoryTypeRepository(session)
 
 
     def get_all_transactions(self, user_id: UUID):
@@ -98,15 +100,15 @@ class TransactionsService:
     # Analytics
 
     def get_transactions_with_category_type_info(self, user_id: UUID, is_recurring_expense: Optional[bool] = None):
-        transactions = self.get_transaction_by_user(user_id=user_id)
+        transactions = self.get_all_transactions(user_id=user_id)
 
         if is_recurring_expense is not None:
             transactions = [t for t in transactions if t.is_recurring == is_recurring_expense]
 
         result = []
         for transaction in transactions:
-            category = self.category_service.get_obj_by_id_not_deleted(obj_id=transaction.category_id)
-            category_type = self.category_type_service.get_obj_by_id(obj_id=category.category_type_id)
+            category = self.category_repository.get_category_by_user(category_id=transaction.category_id, user_id=user_id)
+            category_type = self.category_type_repository.get_by_id(obj_id=category.category_type_id)
 
             result.append({
                 "amount": transaction.amount,
