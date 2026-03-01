@@ -6,7 +6,6 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from categories.service import CategoryService
-from transactions.models import Transactions as TransactionsModel
 from mwu.db import get_db
 from transactions.service import TransactionsService
 from user.service import UserService
@@ -14,7 +13,6 @@ from user.service import UserService
 
 class ExpensesService:
     def __init__(self, session: Session = Depends(get_db)):
-        super().__init__(model=TransactionsModel, session=session)
         self.transaction_service = TransactionsService(session=session)
         self.category_service = CategoryService(session=session)
         self.user_service = UserService(session=session)
@@ -22,7 +20,7 @@ class ExpensesService:
 
     def get_monthly_expenses_by_category(self, user_id: UUID, is_recurring_expense: Optional[bool] = None):
         transactions_data = self.transaction_service.get_transactions_with_category_type_info(
-            user_id, is_recurring_expense
+            user_id=user_id, is_recurring_expense=is_recurring_expense
         )
 
         summary = defaultdict(float)
@@ -58,7 +56,7 @@ class ExpensesService:
         return sorted(result, key=lambda x: (x['year'], x['month']))
 
     def get_total_expense_distribution(self, user_id: UUID):
-        transactions_data = self.transaction_service.get_transactions_with_category_type_info(user_id)
+        transactions_data = self.transaction_service.get_transactions_with_category_type_info(user_id=user_id)
 
         valid_transactions = [t for t in transactions_data if t.get('date')]
         total = sum(t['amount'] for t in valid_transactions)
