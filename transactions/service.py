@@ -96,24 +96,3 @@ class TransactionsService:
         )
         transaction = self.transactions_repository.force_delete(obj_id=deleted_transaction.id)
         return transaction
-
-    # Analytics
-
-    def get_transactions_with_category_type_info(self, user_id: UUID, is_recurring_expense: Optional[bool] = None):
-        transactions = self.get_all_transactions(user_id=user_id)
-
-        if is_recurring_expense is not None:
-            transactions = [t for t in transactions if t.is_recurring == is_recurring_expense]
-
-        result = []
-        for transaction in transactions:
-            category = self.category_repository.get_category_by_user(category_id=transaction.category_id, user_id=user_id)
-            category_type = self.category_type_repository.get_by_id(obj_id=category.category_type_id)
-
-            result.append({
-                "amount": transaction.amount,
-                "date": transaction.date,
-                "category_type_name": category_type.name,
-                "is_positive": category_type.is_positive
-            })
-        return result
