@@ -37,42 +37,34 @@ class TransactionsRepository(BaseRepository):
         return
 
     def create_transaction_with_recurrence(self, transaction_data: dict, schedule_data: dict = None):
-
         if schedule_data:
-
             new_schedule = RecurrenceScheduleModel(**schedule_data)
             self.db.add(new_schedule)
             self.db.flush()
-
             transaction_data["recurrence_id"] = new_schedule.id
 
         new_transaction = self.model(**transaction_data)
         self.db.add(new_transaction)
-
         self.db.commit()
         self.db.refresh(new_transaction)
         return new_transaction
 
-    def update_transaction_with_recurrence(self, transaction_id: UUID, transaction_data: dict, schedule_data: dict = None,
-                                         stop_recurrence: bool = False):
+    def update_transaction_with_recurrence(self, transaction_id: UUID, transaction_data: dict,
+                                           schedule_data: dict = None, stop_recurrence: bool = False):
         transaction = self.get_by_id(transaction_id)
 
         if stop_recurrence and transaction.recurrence_id:
-
             self.db.query(RecurrenceScheduleModel).filter(
                 RecurrenceScheduleModel.id == transaction.recurrence_id
-            ).update({"deleted_at": datetime.now(), "is_active": False})
-
-            transaction.recurrence_id = None
+            ).update({"is_active": False, "updated_at": datetime.now()})
 
         elif schedule_data:
             if transaction.recurrence_id:
-
+                schedule_data["is_active"] = True
                 self.db.query(RecurrenceScheduleModel).filter(
                     RecurrenceScheduleModel.id == transaction.recurrence_id
                 ).update(schedule_data)
             else:
-
                 new_schedule = RecurrenceScheduleModel(**schedule_data)
                 self.db.add(new_schedule)
                 self.db.flush()
@@ -85,16 +77,16 @@ class TransactionsRepository(BaseRepository):
         self.db.refresh(transaction)
         return transaction
 
-
     def soft_delete_with_cascade_on_recurrences(self, transaction_id: UUID):
         transaction = self.get_by_id(transaction_id)
+        now = datetime.now()
 
-        transaction.deleted_at = datetime.now()
+        transaction.deleted_at = now
 
         if transaction.recurrence_id:
             self.db.query(RecurrenceScheduleModel).filter(
                 RecurrenceScheduleModel.id == transaction.recurrence_id
-            ).update({"deleted_at": datetime.now(), "is_active": False})
+            ).update({"deleted_at": now, "is_active": False, "updated_at": now})
 
         self.db.commit()
         return transaction

@@ -75,8 +75,7 @@ class TransactionsService:
 
     def update_transaction(self, id: UUID, data: TransactionUpdateInScheme, user_id: UUID):
         data.user_id = user_id
-
-        transaction_db = self.transactions_repository.get_transaction_by_user(id, user_id)
+        self.transactions_repository.get_transaction_by_user(id, user_id)
 
         if data.category_id:
             self.category_repository.get_category_by_user(data.category_id, user_id)
@@ -88,17 +87,15 @@ class TransactionsService:
         schedule_fields = None
         stop_recurrence = False
 
-        if data.is_recurring == False and transaction_db.recurrence_id is not None:
+        if data.is_recurring is False:
             stop_recurrence = True
 
-        elif data.is_recurring:
-
+        elif data.is_recurring is True:
             interval = data.recurrence_interval or "MONTHLY"
 
             next_date = data.next_due_date
             if not next_date:
-                base_date = data.date or transaction_db.date
-                next_date = _calculate_next_date(start_date=base_date, interval=interval)
+                next_date = _calculate_next_date(start_date=datetime.now(), interval=interval)
 
             schedule_fields = {
                 "user_id": user_id,
