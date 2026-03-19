@@ -46,6 +46,7 @@ class TransactionOutput(BaseModel):
     amount: float
     date: datetime
 
+    is_recurrence_active: Optional[bool] = None
     recurrence_interval: Optional[str] = None
     end_date: Optional[datetime] = None
     next_due_date: Optional[datetime] = None
@@ -58,6 +59,7 @@ class TransactionOutput(BaseModel):
     @classmethod
     def flatten_recurrence(cls, data):
         if hasattr(data, "recurrence") and data.recurrence:
+            data.is_recurrence_active = data.recurrence.is_active
             data.recurrence_interval = data.recurrence.interval
             data.end_date = data.recurrence.end_date
             data.next_due_date = data.recurrence.next_due_date
