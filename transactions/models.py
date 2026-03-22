@@ -33,7 +33,7 @@ class RecurrenceSchedule(_Base):
     user_id = Column(Uuid, default=uuid7)
     interval = Column(String, nullable=False) # enum (DAILY, WEEKLY, MONTHLY, YEARLY)
     next_due_date = Column(DateTime, nullable=False)
-    end_date = Column(DateTime, nullable=False) #
+    end_date = Column(DateTime, nullable=True) 
     is_active = Column(Boolean, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     updated_at = Column(DateTime, nullable=False, default=datetime.now())
