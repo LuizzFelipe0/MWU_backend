@@ -5,9 +5,11 @@ from starlette.middleware.cors import CORSMiddleware
 from accounts.controller import accounts_router
 from analytics.expenses.controller import expenses_router
 from analytics.goals.controller import  goals_router
+from back_office.controller import back_office_router
 from categories.controller import categories_router
 from category_types.controller import category_types_router
 from financial_goals.controller import financial_goals_router
+from mwu.schedulers.scheduler import mwu_scheduler
 from transactions.controller import transactions_router
 from auth.controller import auth_router
 from user.controller import users_router
@@ -36,6 +38,8 @@ app.include_router(expenses_router)
 app.include_router(goals_router)
 app.include_router(auth_router)
 
+app.include_router(back_office_router)
+
 app.include_router(accounts_router)
 app.include_router(user_account_router)
 app.include_router(users_router)
@@ -44,6 +48,15 @@ app.include_router(categories_router)
 app.include_router(category_types_router)
 app.include_router(transactions_router)
 app.include_router(financial_goals_router)
+
+
+@app.on_event("startup")
+async def startup_event():
+    mwu_scheduler.start()
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    mwu_scheduler.shutdown()
 
 if __name__ == "__main__":
     uvicorn.run("mwu.main:app", host="127.0.0.1", port=8000, reload=True)
