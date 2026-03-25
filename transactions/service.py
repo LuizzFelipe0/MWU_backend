@@ -22,8 +22,17 @@ class TransactionsService:
         self.category_repository = CategoryRepository(session)
         self.category_type_repository = CategoryTypeRepository(session)
 
-    def get_all_transactions(self, user_id: UUID):
-        transactions = self.transactions_repository.get_transactions_by_user(user_id=user_id)
+    def get_all_transactions(
+            self,
+            user_id: UUID,
+            year: int = None,
+            month: int = None
+    ):
+        transactions = self.transactions_repository.get_transactions_by_user(
+            user_id=user_id,
+            year=year,
+            month=month
+        )
         return transactions
 
     def get_deleted_transactions(self, user_id: UUID):

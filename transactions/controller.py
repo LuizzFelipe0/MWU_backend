@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -15,8 +16,17 @@ class TransactionsController:
     service: TransactionsService = Depends()
 
     @transactions_router.get("/all", response_model=list[TransactionOutScheme | None])
-    def get_all_transactions(self, current_user = Depends(get_current_user)):
-        transactions = self.service.get_all_transactions(user_id=current_user.id)
+    def get_all_transactions(
+            self,
+            current_user = Depends(get_current_user),
+            year: Optional[int] = None,
+            month: Optional[int] = None,
+    ):
+        transactions = self.service.get_all_transactions(
+            user_id=current_user.id,
+            year=year,
+            month=month
+        )
         return transactions
 
     @transactions_router.get("/deleted", response_model=list[TransactionOutScheme | None])

@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from fastapi import HTTPException
+from sqlalchemy import extract
 from sqlalchemy.orm import Session
 from mwu.repositories.base_repository import BaseRepository
 from .models import Transactions as TransactionModel, RecurrenceSchedule as RecurrenceScheduleModel
@@ -16,8 +17,15 @@ class TransactionsRepository(BaseRepository):
             self.model.deleted_at.isnot(None) if is_deleted else self.model.deleted_at.is_(None)
         )
 
-    def get_transactions_by_user(self, user_id: UUID):
-        return self._get_transaction_scoped_query(user_id).all()
+    def get_transactions_by_user(self, user_id: UUID, year: int = None, month: int = None):
+        transactions = self._get_transaction_scoped_query(user_id)
+
+        if year:
+            transactions = transactions.filter(extract('year', self.model.date) == year)
+        if month:
+            transactions = transactions.filter(extract('month', self.model.date) == month)
+
+        return transactions.all()
 
     def get_deleted_transactions_by_user(self, user_id: UUID):
         return self._get_transaction_scoped_query(user_id, is_deleted=True).all()
