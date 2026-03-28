@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 from fastapi import Depends
@@ -61,25 +61,47 @@ class TransactionsService:
                 user_id=user_id
             )
 
-        transaction_dict = data.model_dump(exclude={'is_recurring', 'recurrence_interval', 'end_date', 'next_due_date'})
-        transaction_dict["user_id"] = user_id
+        transaction_base_dict = data.model_dump(
+            exclude={'is_recurring', 'recurrence_interval', 'end_date', 'next_due_date'})
 
-        recurrence_schedule_dict = None
+        transaction_base_dict["user_id"] = user_id
+
+        transactions_to_create = []
+        schedule_dict = None
+
         if data.is_recurring:
+            # Retroactive logic
+            current_date = data.date
+            now = datetime.now(data.date.tzinfo)
 
-            next_date = data.next_due_date
-            if not next_date:
-                next_date = _calculate_next_date(start_date=data.date, interval=data.recurrence_interval)
+            while current_date <= now:
 
-            recurrence_schedule_dict = {
+                new_tra = transaction_base_dict.copy()
+                new_tra["date"] = current_date
+                new_tra["user_id"] = user_id
+                transactions_to_create.append(new_tra)
+
+                next_date = _calculate_next_date(current_date, data.recurrence_interval)
+
+                if data.end_date and current_date >= data.end_date:
+                    break
+
+                current_date = next_date
+
+            schedule_dict = {
                 "user_id": user_id,
                 "interval": data.recurrence_interval,
-                "next_due_date": next_date,
-                "end_date": None,
-                "is_active": True
+                "next_due_date": current_date,
+                "end_date": data.end_date,
+                "is_active": True if not data.end_date or current_date <= data.end_date else False
             }
+        else:
+            transactions_to_create.append(transaction_base_dict)
 
-        transaction = self.transactions_repository.create_transaction_with_recurrence(transaction_dict, recurrence_schedule_dict)
+        transaction = self.transactions_repository.create_transaction_with_recurrence(
+            transactions_to_create,
+            schedule_dict
+        )
         return transaction
 
     def update_transaction(self, id: UUID, data: TransactionUpdateInScheme, user_id: UUID):
@@ -130,7 +152,8 @@ class TransactionsService:
             transaction_id=id,
             user_id=user_id)
 
-        transaction = self.transactions_repository.soft_delete_with_cascade_on_recurrences(transaction_id=transaction_validated.id)
+        transaction = self.transactions_repository.soft_delete_with_cascade_on_recurrences(
+            transaction_id=transaction_validated.id)
 
         return transaction
 

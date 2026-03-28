@@ -44,18 +44,30 @@ class TransactionsRepository(BaseRepository):
             raise HTTPException(status_code=404, detail="Deleted transaction not found")
         return
 
-    def create_transaction_with_recurrence(self, transaction_data: dict, schedule_data: dict = None):
+    def create_transaction_with_recurrence(self, transactions_data: list[dict], schedule_data: dict = None):
+        recurrence_id = None
+
+        # 1. If the recurrence is true, it first creates the transaction to obtain ID
         if schedule_data:
             new_schedule = RecurrenceScheduleModel(**schedule_data)
             self.db.add(new_schedule)
             self.db.flush()
-            transaction_data["recurrence_id"] = new_schedule.id
+            recurrence_id = new_schedule.id
 
-        new_transaction = self.model(**transaction_data)
-        self.db.add(new_transaction)
+        # 2. Inserts all transactions (being 1 or more in the past)
+        created_transactions = []
+        for transaction_dict in transactions_data:
+            transaction_dict["recurrence_id"] = recurrence_id
+            new_tr = self.model(**transaction_dict)
+            self.db.add(new_tr)
+            created_transactions.append(new_tr)
+
         self.db.commit()
-        self.db.refresh(new_transaction)
-        return new_transaction
+
+        for tra in created_transactions:
+            self.db.refresh(tra)
+
+        return created_transactions[-1]
 
     def update_transaction_with_recurrence(self, transaction_id: UUID, transaction_data: dict,
                                            schedule_data: dict = None, stop_recurrence: bool = False):
