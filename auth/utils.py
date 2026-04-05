@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from mwu.db import get_db
-from user.service import UserService
+from user.repository import UserRepository
 from auth.security import decode_access_token
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
@@ -23,8 +23,8 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     if not user_id:
         raise HTTPException(status_code=401, detail="Invalid token payload")
 
-    service = UserService(session=db)
-    user = service.get_user_by_id(UUID(user_id))
+    repository = UserRepository(session=db)
+    user = repository.get_by_id(UUID(user_id), must_exist=False)
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
