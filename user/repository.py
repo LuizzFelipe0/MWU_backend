@@ -16,3 +16,6 @@ class UserRepository(BaseRepository):
 
     def get_all_deleted_users(self):
         return self.db.query(self.model).filter(self.model.deleted_at.isnot(None)).all()
+
+    def get_by_email(self, email: str):
+        return self.db.query(self.model).filter(self.model.email == email).first()
