@@ -5,31 +5,31 @@ from uuid import UUID
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from categories.service import CategoryService
-from category_types.service import CategoryTypeService
+from categories.repository import CategoryRepository
+from category_types.repository import CategoryTypeRepository
 from mwu.db import get_db
-from transactions.service import TransactionsService
-from user.service import UserService
+from transactions.repository import TransactionsRepository
+from user.repository import UserRepository
 
 
 class ExpensesService:
     def __init__(self, session: Session = Depends(get_db)):
-        self.transaction_service = TransactionsService(session=session)
-        self.category_service = CategoryService(session=session)
-        self.category_type_service = CategoryTypeService(session=session)
-        self.user_service = UserService(session=session)
+        self.transaction_service = TransactionsRepository(session=session)
+        self.category_service = CategoryRepository(session=session)
+        self.category_type_service = CategoryTypeRepository(session=session)
+        self.user_service = UserRepository(session=session)
 
 
     def get_transactions(self, user_id: UUID, is_recurring_expense: Optional[bool] = None):
-            transactions = self.transaction_service.get_all_transactions(user_id=user_id)
+            transactions = self.transaction_service.get_transactions_by_user(user_id=user_id)
 
             if is_recurring_expense is not None:
                 transactions = [t for t in transactions if t.is_recurring == is_recurring_expense]
 
             result = []
             for transaction in transactions:
-                category = self.category_service.get_category_by_id(id=transaction.category_id, user_id=user_id)
-                category_type = self.category_type_service.get_category_type_by_id(category_type_id=category.category_type_id)
+                category = self.category_service.get_category_by_user(category_id=transaction.category_id, user_id=user_id)
+                category_type = self.category_type_service.get_by_id(obj_id=category.category_type_id)
 
                 result.append({
                     "amount": transaction.amount,

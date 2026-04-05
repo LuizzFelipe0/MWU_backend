@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import APIRouter,Depends
 from fastapi_utils.cbv import cbv
 
@@ -14,6 +16,12 @@ class GoalsController:
     service: GoalsService = Depends()
 
     @goals_router.get("/all", response_model=list[GoalsOutput])
-    def get_all(self, current_user = Depends(get_current_user)):
-        goals = self.service.get_goals_to_be_reached(user_id=current_user.id)
+    def get_all(self,
+                account_id: Optional[str] = "total",
+                current_user = Depends(get_current_user)
+                ):
+        goals = self.service.get_goals_to_be_reached(
+            user_id=current_user.id,
+            account_id=account_id
+        )
         return goals
