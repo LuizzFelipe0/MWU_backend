@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from auth.security import is_strong_password, hash_password
+from auth.security import is_strong_password, hash_field, encrypt_field, decrypt_field
 from mwu.db import get_db
 
 from .repository import UserRepository
@@ -22,7 +22,6 @@ class UserService:
                 detail="Access denied: You can not manipulate third-party resources."
             )
 
-
     def get_all_users(self):
         users = self.user_repository.get_all()
         return users
@@ -35,6 +34,8 @@ class UserService:
         self._validate_resource_access(id, requester)
 
         user = self.user_repository.get_by_id(id)
+
+        user.cpf = decrypt_field(user.cpf)
         return user
 
     def create_user(self, data: UserInScheme):
@@ -48,11 +49,12 @@ class UserService:
         is_strong_password(data.password)
         cpf_validator(data.cpf)
 
-        hashed_password = hash_password(data.password)
+        hashed_password = hash_field(data.password)
 
         user_data = data.dict()
         user_data['password'] = hashed_password
-        user_data['cpf'] = cpf_validator(user_data['cpf'])
+
+        user_data['cpf'] = encrypt_field(cpf_validator(data.cpf))
         user_data['is_admin'] = False
 
         user = self.user_repository.create(data=UserInScheme(**user_data))
@@ -68,17 +70,21 @@ class UserService:
 
         if 'password' in user_data:
             is_strong_password(user_data['password'])
-            user_data['password'] = hash_password(user_data['password'])
+            user_data['password'] = hash_field(user_data['password'])
 
         if 'cpf' in user_data:
-            user_data['cpf'] = cpf_validator(user_data['cpf'])
+            user_data['cpf'] = encrypt_field(cpf_validator(user_data['cpf']))
 
         if not requester.is_admin:
             user_data.pop('is_admin', None)
 
-        user = self.user_repository.update(obj_id=user_with_id_validated.id, data=UserUpdateInScheme(**user_data))
+        user_updated = self.user_repository.update(obj_id=user_with_id_validated.id, data=UserUpdateInScheme(**user_data))
 
-        return user
+        self.user_repository.db.refresh(user_updated)
+
+        user_updated.cpf = decrypt_field(user_updated.cpf)
+
+        return user_updated
 
     def delete_user(self, id: UUID, requester):
         self._validate_resource_access(id, requester)

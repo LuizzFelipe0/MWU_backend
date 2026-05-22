@@ -9,7 +9,6 @@ class UserInfo(BaseModel):
     id: UUID
     email: str
     first_name: str
-    cpf: str
     is_admin: bool
 
 class LoginOutput(BaseModel):

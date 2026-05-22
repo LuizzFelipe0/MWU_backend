@@ -4,17 +4,35 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from fastapi import HTTPException
 from passlib.context import CryptContext
+from cryptography.fernet import Fernet
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 
+ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY")
+cipher_suite = Fernet(ENCRYPTION_KEY.encode())
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+def hash_field(field: str) -> str:
+    return pwd_context.hash(field)
+
+
+def encrypt_field(value: str) -> str:
+    if not value:
+        return value
+    return cipher_suite.encrypt(value.encode()).decode()
+
+
+def decrypt_field(value: str) -> str:
+    if not value:
+        return value
+    try:
+        return cipher_suite.decrypt(value.encode()).decode()
+    except Exception:
+        return value
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
