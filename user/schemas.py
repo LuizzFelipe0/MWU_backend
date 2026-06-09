@@ -29,7 +29,6 @@ class UserOutput(BaseModel):
     last_name: str
     cpf: str
     email: str
-    manual_balance: float | None
     created_at: datetime
     updated_at: datetime
     deleted_at: datetime | None
