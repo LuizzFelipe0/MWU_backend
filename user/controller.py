@@ -26,7 +26,7 @@ class UserController:
         deleted_users = self.service.get_deleted_users()
         return deleted_users
 
-    @users_router.get("/{user_id}")
+    @users_router.get("/{user_id}", response_model=UserOutScheme)
     def get_user_by_id(self, user_id: UUID, current_user = Depends(get_current_user)):
         user = self.service.get_user_by_id(id=user_id, requester=current_user)
         return user
@@ -36,7 +36,7 @@ class UserController:
         user = self.service.create_user(data)
         return user
 
-    @users_router.patch("/{user_id}/update", status_code=200)
+    @users_router.patch("/{user_id}/update", status_code=200 , response_model=UserOutScheme)
     def update_user(self, user_id: UUID, data: UserUpdateInScheme, current_user = Depends(get_current_user)) -> UserOutScheme:
         user = self.service.update_user(id=user_id, data=data, requester=current_user)
         return user
