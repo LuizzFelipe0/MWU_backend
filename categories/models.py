@@ -10,8 +10,8 @@ class Category(_Base):
     __tablename__ = "categories"
 
     id = Column(Uuid, primary_key=True, default=uuid7)
-    user_id = Column(Uuid, primary_key=True, default=uuid7)
-    category_type_id = Column(Uuid, primary_key=True, default=uuid7)
+    user_id = Column(Uuid, default=uuid7)
+    category_type_id = Column(Uuid, default=uuid7)
     name = Column(String, nullable=False)
     description = Column(String, nullable=True)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
